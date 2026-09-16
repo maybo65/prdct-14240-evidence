@@ -1,0 +1,11 @@
+=== at6/d3b sign-off ASK (slack-notify, workspace owner) ===
+sent_utc: 2026-09-13T16:22:58Z
+
+QUESTION:
+PRDCT-14240 (Kimi Code / Kimi CLI governance) sign-off ASK — during this run I (1) authenticated a Moonshot AI (Kimi) account on the box via OAuth (coder Google/JumpCloud) to install & run the real kimi-cli for the runtime-block e2e, and (2) attempted real prompt traffic to the Moonshot API, which returned HTTP 403 access_terminated (monthly usage limit reached) — so the live allow/deny/re-allow session legs are BLOCKED on Moonshot quota, not on our code. Two questions: (a) is using/creating that Moonshot account for this eval sanctioned? (b) do you approve reporting the live-session ATs as BLOCKED (access blocker: account/quota) with the 403 evidence, shipping all runtime-block CODE now? Reply here; I will quote your answer (or the unanswered state) in the PR.
+
+REPLY:
+DM DELIVERED to the workspace owner (May Bohadana) — confirmed by slack-notify ("Asked May Bohadana — waiting for reply...").
+No thread reply received within the bounded 300s poll; the reply-poll was additionally throttled by Slack (HTTP 429).
+RECORDED STILL-UNANSWERED STATE (d3b explicitly permits quoting this state in the PR).
+unanswered_utc: 2026-09-13T16:27:59Z

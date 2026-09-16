@@ -1,0 +1,16 @@
+AT1 RESIDUE CONTROL — PR binary-gate suppresses the base's residue false-positive
+==================================================================================
+Setup: `uv tool uninstall kimi-cli` (kimi binary removed from PATH) while ~/.kimi and
+~/.kimi/config.toml were LEFT IN PLACE (residue). Both scanners run --output-file (local).
+
+Result (emitted kimi-cli agent-INSTALL objects = install assertion on the wire):
+  BASE scanner: 2 kimi-cli install objects emitted (configPath=~/.kimi, evidence dsl_dir)
+                => residue FALSE-POSITIVE: reports Kimi installed with no binary present.
+  PR scanner  : 0 kimi-cli install objects emitted.
+                agent_detection has NO kimi 'detected:true' line (only claude-code + codex).
+                The single 'kimi-cli' string in the PR output is a DEBUG "MCP config path
+                exists" probe log, NOT an emitted asset.
+
+The PR's suspectedDir binary_on_path_for_user("kimi") gate is what closes the base
+residue-keying false-positive (the "known gap: DSL dynamic detectors are NOT yet gated").
+kimi-cli reinstalled afterward (uv tool install kimi-cli==1.50.0) to restore the box.

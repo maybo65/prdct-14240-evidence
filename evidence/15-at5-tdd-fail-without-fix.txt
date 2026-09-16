@@ -1,0 +1,41 @@
+at5 TDD — matcher tests FAIL without the implementation (proven in the working tree, then restored)
+====================================================================================================
+File: backend_python/tests/python_temporal_worker/issue_detection/test_matchers.py
+      class TestMatchUnsanctionedAgentDeployed
+
+New/updated tests encoding the required behavior (NULL status = freshly-scanned = not sanctioned => alert):
+  - test__status_none_ai_agent__returns_true
+  - test__status_none_desktop_agent__returns_true   (the discovered high-risk desktop-agent shape, e.g. Kimi CLI)
+
+WITH the fix (catalog.py: canonical_status = asset.status or DISCOVERED; return canonical_status != SANCTIONED):
+  $ uv run pytest ...::TestMatchUnsanctionedAgentDeployed -v
+  => 7 passed
+
+WITHOUT the fix (matcher temporarily reverted to the pre-fix body
+  `return ctx.asset.status in (UNSANCTIONED, DISCOVERED)`  -- never fires on NULL):
+  $ uv run pytest ...::test__status_none_ai_agent__returns_true ...::test__status_none_desktop_agent__returns_true
+  => 2 failed
+     FAILED ...::test__status_none_ai_agent__returns_true
+     FAILED ...::test__status_none_desktop_agent__returns_true
+
+The revert was applied to the WORKING TREE only, the tests run to confirm RED, then
+`git checkout` restored the committed fix. No throwaway branch was pushed.
+
+WHY THIS MATTERS: the codex comparator and every freshly-discovered agent land with a NULL
+status column (the desktop-agent creator sets none). The pre-fix matcher only fired on the
+enum values UNSANCTIONED/DISCOVERED and silently missed NULL, so the retired issue never
+revived for a real discovery. The fix canonicalizes NULL -> DISCOVERED (mirroring
+asset_inventory/projection.py) so "not sanctioned" correctly includes the freshly-scanned state.
+
+----------------------------------------------------------------------------------------------------
+CRUD trigger wiring — TDD (backend_python/tests/crud_service/api/test_access_control.py)
+class TestAgentSanctionTriggersIssueRecompute
+  - test_desktop_agent_sanction_schedules_recompute       (DESKTOP_AGENT toggle -> recompute scheduled for that asset)
+  - test_homegrown_ai_agent_sanction_schedules_recompute  (HOMEGROWN+AI_AGENT toggle -> recompute scheduled)
+  - test_mcp_only_update_does_not_schedule_agent_recompute (pure MCP update -> agent recompute NOT scheduled)
+
+WITH the fix: 3 passed.
+WITHOUT the fix (route wiring `if changed_agent_asset_ids: background_tasks.add_task(...)`
+  temporarily disabled in the working tree):
+  => 2 failed (the two "schedules" tests), 1 passed (the MCP-negative correctly still passes).
+The working-tree change was reverted with `git checkout` after confirming RED.

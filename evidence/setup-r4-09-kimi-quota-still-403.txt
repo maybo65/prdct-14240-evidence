@@ -1,0 +1,6 @@
+Error code: 403 - {'error': {'message': "You've reached your monthly usage limit
+for this billing cycle. Your quota will be refreshed in the next cycle. To conti
+nue now, purchase extra usage or upgrade your plan: https://www.kimi.com/members
+hip/subscription?tab=quota", 'type': 'access_terminated_error'}}
+
+To resume this session: kimi -r 6ee6df9c-cac4-4aa0-92ba-8672dde34182

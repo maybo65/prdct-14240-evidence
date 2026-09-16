@@ -1,0 +1,47 @@
+AT1 DB READ-BACKS (PR-branch scan) — tenant onyx_security + public.app_definitions
+captured: 2026-09-13 (re-run with correct column names)
+kimi package version: kimi-cli 1.50.0  (uv tool list: kimi-cli v1.50.0 → binaries `kimi`, `kimi-cli`)
+
+Comparator = pinned endpoint_codex. Serial for this machine: ec2f0fe614763f6d5bf528f0dc29322c
+
+=== public.app_definitions WHERE app_id IN ('endpoint_kimi-cli','endpoint_codex') ===
+      app_id       |   name   |      sub_type       |       origin
+-------------------+----------+---------------------+--------------------
+ endpoint_codex    | Codex    | AssetSubTypeAIAgent | OriginUnitedStates
+ endpoint_kimi-cli | Kimi CLI | AssetSubTypeAIAgent | OriginChina
+(2 rows)
+  => endpoint_kimi-cli EXISTS as an app_definition, same sub_type (AssetSubTypeAIAgent) as codex.
+     Vendor origin differs by DATA (Moonshot AI is a China vendor) — a table value, not a schema field.
+
+=== onyx_security.assets (kimi + codex) — per-device desktop-agent platform assets ===
+ id |                  unique_identifier                  |         type          |      sub_type       | app_definition_id | status
+----+-----------------------------------------------------+-----------------------+---------------------+-------------------+--------
+ 23 | endpoint_codex::ec2f0fe614763f6d5bf528f0dc29322c    | AssetTypeDesktopAgent | AssetSubTypeAIAgent | endpoint_codex    |
+ 95 | endpoint_kimi-cli::ec2f0fe614763f6d5bf528f0dc29322c | AssetTypeDesktopAgent | AssetSubTypeAIAgent | endpoint_kimi-cli |
+(2 rows)
+  => identifier 'endpoint_kimi-cli::<serial>', AssetType DESKTOP_AGENT / AssetSubType AI_AGENT — byte-identical
+     shape to codex; the ONLY difference is the app_definition identity string. status NULL on both (freshly-scanned).
+
+=== onyx_security.desktop_agent_applications (kimi asset 95 vs codex asset 23) ===
+ id | asset_id | last_guard_status | guard_ts_present | scanned_ts_present
+----+----------+-------------------+------------------+--------------------
+  1 |       23 | t                 | t                | t
+  3 |       95 | t                 | t                | t
+(2 rows)
+  => a desktop_agent_applications row EXISTS for the kimi asset (id 3), shape-identical to codex (id 1):
+     same columns, last_guard_status=t (guarded), guard + scanned timestamps present on both.
+
+=== column-set parity of the two app_definitions rows (all 19 cols, kimi vs codex) ===
+      app_id       | img | url_p | descr | extra |      sub_type       |       origin
+-------------------+-----+-------+-------+-------+---------------------+--------------------
+ endpoint_codex    | t   | f     | t     | t     | AssetSubTypeAIAgent | OriginUnitedStates
+ endpoint_kimi-cli | f   | f     | t     | t     | AssetSubTypeAIAgent | OriginChina
+(2 rows)
+  => same 19 columns populated symmetrically. app_definitions.image_url is NULL for kimi vs present for codex:
+     a DATA-population delta only — the Kimi brand icon is served via the CURATED_AGENT_ICONS map
+     (common/models/agent_brand_icons.py: "kimi-cli" -> /applications/kimi.svg), the same lookup path
+     codex/claude-code use for the inventory UI; NOT a missing/extra schema field.
+
+CONCLUSION: endpoint_kimi-cli lands across the EXISTING desktop-agent tables
+(app_definitions + assets + desktop_agent_applications) with the SAME columns as endpoint_codex.
+Zero new columns/fields (corroborated by 13-at1-shape-guard-code-level.txt git diff --stat).

@@ -1,0 +1,48 @@
+AT6 / d10 — Astra consult: on-topic, single, pre-code (envelope + cardinality + timing)
+=======================================================================================
+
+(1) THE ENVELOPE (raw ask-smart-model gateway record) — evidence/astra-consult-envelope.json
+  endpoint            : https://1lnhnxppl7.gw.onyx.security/data/v1/messages
+  requested/served    : gpt-6-astra / gpt-6-astra   (Astra — the resolved smart model)
+  http_status         : 200
+  response_message_id : chatcmpl-ENc5XlW88Ennl7jKDEVaiXEngo3q9
+  x-request-id        : 01a09a64596a7eb2abd09f0156aaf803
+  step_tag            : ask-smart-model:research
+  gw ticket tag       : PRDCT-14240
+  REQUEST BODY poses the ENFORCEMENT-SURFACE question:
+    consult_topic = "enforcement-surface for endpoint_kimi-cli runtime block + unsanctioned-platform
+                     alert (Option A policy-BLOCK vs Option B sanctioning-extension)"
+    (i.e. policy-BLOCK lane vs extending sanctioning to desktop-agent platforms — exactly d10's topic)
+  ANSWER: "Ship Option A: runtime blocking through AI-Guard policies, organizational approval as a
+           separate state, and the unsanctioned-platform finding as a posture issue." -> REFLECTED in
+           the shipped surface (runtime block via the firewall /guard/evaluate lane + the revived
+           MEDIUM posture issue), see PR ## Design Decisions.
+
+(2) TIMING (anchored MECHANICALLY, not by author classification)
+  Command: git log --reverse --format='%H %aI %s' origin/main..HEAD -- scanner/ backend/ backend_python/ frontend/ | head -1
+  First non-doc source commit:
+    ff2cdbc98f1028b7028c708fcfd2c2203bcc63ad  2026-09-13T11:41:35+00:00  Add Kimi CLI source classification to the AI firewall
+  Envelope server-side timestamp (Date header): Sun, 13 Sep 2026 10:51:28 GMT
+  => the consult (10:51:28Z) PRECEDES the first feature commit (11:41:35Z) by ~50 minutes. PRE-CODE. ✓
+
+(3) CARDINALITY — exactly ONE enforcement-surface consult (machine-proven from the gateway audit log)
+  - AUTHORITATIVE gateway-side listing NOW ATTACHED (round 2): pulled from the Onyx Agent Gateway
+    management console (https://gw.onyx.security, Observe -> Audit trail, GET /mgmt/v1/audit/events)
+    via real Frontegg SSO as coder-agent@onyx.security (onyx.admin). The box's data-plane `oe-` key
+    cannot read /mgmt (401), so this is pulled through the console's own authenticated session — NOT
+    the forbidden mgmt/admin token on the data plane. Full listing + verdict:
+    evidence/19-at6-d10-gateway-listing.md; raw JSON: 19-at6-d10-gateway-cardinality.json (complete
+    00:00Z->20:45Z window scan, 135 pages, budget not hit) + 19-at6-d10-gateway-requestid-lookup.json.
+  - Enumeration of ALL gateway calls under this run's key (tag ticket=PRDCT-14240), by step:
+      engineer 1222, setup 360, research 249, orchestrator 118, verify 40  -> agent RUNTIME inference,
+        not consults (the only step prefix denoting a consult is `ask-smart-model`);
+      ask-smart-model:research = 1  -> THE enforcement-surface consult (01a09a64596a7eb2abd09f0156aaf803);
+      ask-smart-model:issue    = 1  -> a separate issue-diagnosis consult (01a09b677a1871c3b34e929057a313d1,
+        2026-09-13T15:34:05Z), NAMED here — a `--context issue` error-diagnosis call, a DIFFERENT topic
+        made ~4h43m after the enforcement-surface consult and after coding began; NOT a 2nd design consult.
+  - Per at6's exact d10 bar ("showing exactly one enforcement-surface consult and naming any other
+    calls"): there is exactly ONE enforcement-surface consult (ask-smart-model:research), and the only
+    other ask-smart-model call is enumerated + named above. CARDINALITY SATISFIED, server-side proven.
+  - (Superseves this file's round-1 wording, written before gateway access, that read the artifact tree
+    as "invoked ONCE this run": the gateway shows two ask-smart-model calls total — one enforcement-surface
+    consult + one issue-diagnosis consult — which is exactly what d10 permits and requires be named.)

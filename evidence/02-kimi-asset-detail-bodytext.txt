@@ -1,0 +1,67 @@
+AT1 Kimi CLI desktop-agent detail — annotated capture
+url: http://localhost:8181/ai-assets/desktop-agents/group/endpoint_kimi-cli?tab=overview&instanceType=endpoint&containerView=grouped
+guardedBanner: true
+
+Overview
+Guardian
+Inventory
+Findings
+Policies
+Fortify
+Manage
+Docs
+1
+AI Assets
+Kimi CLI
+KC
+Kimi CLI
+Agent
+Overview
+Instances
+1
+Run Time
+Users
+0
+Devices
+1
+Runtime Policies
+1 runtime policy assigned to this group
+Risk Score
+App Risk Assessment at a Glance
+0
+10
+5.8
+Risk Score
+Group Details
+Overview of the desktop agent group
+Description
+Kimi Code CLI (often shortened to Kimi CLI) is a terminal-based AI agent from Moonshot AI that reads local codebases, executes shell commands, fetches web pages, and autonomously plans multi-step solutions for software-development tasks. It calls Moonshot’s Kimi large-language-model family (and can be configured for OpenAI, Anthropic, etc.) to turn natural-language prompts into executable actions, giving developers ChatGPT-like assistance entirely from the command line. See the project repository and official docs: https://github.com/MoonshotAI/kimi-cli ; https://www.kimi.ai/help/kimi-code/cli-getting-started .
+L3: Goal-Driven
+Origin
+China
+Sources
+Endpoint Scanner
+First Seen
+Sep 13, 2026
+Last Seen
+Sep 13, 2026
+Total Sessions
+0
+Flagged Interactions
+0
+Avg Daily Interactions
+0
+Users
+0
+Devices
+1
+Open Issues
+Showing 0 results
+No issues yet
+
+There are currently no issues. They will appear here once available.
+
+-
+TanStack Router
+NEW
+💻 NEW: CrowdStrike Falcon EDR context in Runtime Alerts

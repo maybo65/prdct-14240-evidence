@@ -1,0 +1,37 @@
+AT1 SHAPE GUARD — endpoint_kimi-cli carries EXACTLY the codex attribute shape
+==============================================================================
+Real PR-scanner scan payloads (scan_run 129d2216 for ingest; --output-file for shape).
+Comparator = pinned endpoint_codex.
+
+--- Scanner payload agent-object TOP-LEVEL KEYS ---
+PR codex : ['agentCustomData','configExists','configModifiedAt','configPath','isGuarded','mcpServers','name','protects_all_mcps','type']
+PR kimi  : ['agentCustomData','configExists','configPath','installEvidencePath','installEvidenceType','isGuarded','mcpServers','name','type']
+
+keys in KIMI not in CODEX : ['installEvidencePath','installEvidenceType']   (see disposition below)
+keys in CODEX not in KIMI : ['configModifiedAt','protects_all_mcps']        (see disposition below)
+
+--- agentCustomData SHAPE (the "codex-shaped" core claim) — IDENTICAL ---
+codex agentCustomData _type: DefaultChannelCustomData | keys: ['_type','channels']
+kimi  agentCustomData _type: DefaultChannelCustomData | keys: ['_type','channels']
+codex channel[0] keys: ['channelId','details','displayName','enabled','key']
+kimi  channel[0] keys: ['channelId','details','displayName','enabled','key']
+=> acd keys in KIMI not in CODEX: []  (byte-for-byte shape parity)
+
+--- DIVERGENCE DISPOSITIONS (all are pre-existing common fields driven by TABLE choices, NOT new schema) ---
+installEvidencePath / installEvidenceType (kimi has, codex lacks):
+  Pre-existing CodingAgentInfo fields, populated for ANY agent whose suspectedDir uses the
+  binary_on_path install gate. Codex leaves them empty because codex keys on config residue.
+  This is the residue->binary gate delta (a DSL table-entry choice), not an invented field.
+configModifiedAt / protects_all_mcps (codex has, kimi lacks):
+  configModifiedAt: codex reports its config mtime; kimi's flat-hooks lane does not carry it.
+  protects_all_mcps: codex has an MCP-guard-hooks lane; kimi reaches Onyx via the agent-hooks
+  lane ONLY (no MCP-guard lane), so it has no all-MCP protection posture to report.
+
+--- DB ASSET ROW SHAPE (tenant onyx_security) — IDENTICAL ---
+id 23 endpoint_codex::ec2f0fe... | AssetTypeDesktopAgent | AssetSubTypeAIAgent | Desktop | app_def=endpoint_codex
+id 95 endpoint_kimi-cli::ec2f0fe... | AssetTypeDesktopAgent | AssetSubTypeAIAgent | Desktop | app_def=endpoint_kimi-cli
+(only difference is the app_definition_id identity string.)
+
+--- DB custom_data footprint — SYMMETRIC ---
+codex (daa 1): 0 custom_data rows.  kimi (daa 3): 0 custom_data rows.
+(only claude-code daa 2 carries claude_code.* rows; kimi matches codex exactly.)

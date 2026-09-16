@@ -1,0 +1,32 @@
+AT1 step 10 — scanner-detector-e2e CI matrix cell (kimi-cli: linux + macos), dispatched from the PR branch
+=========================================================================================================
+The shipped darwin detector entry is literally exercised on a REAL macOS runner (the macOS
+literal proof carrier — no lab Mac needed), and the linux entry on a real ubuntu runner.
+Each job REALLY installs kimi-cli (scanner/test/detector-install/kimi-cli.sh: uv tool install +
+real first run creating ~/.kimi + `kimi mcp add` a real stdio server), runs ONE
+`scan --output-file`, normalizes the kimi-cli payload, and compares it BYTE-FOR-BYTE to the
+committed golden (backend_python/scripts/e2e/scanner_golden/payloads.json).
+
+Workflow : scanner-detector-e2e.yaml  (workflow_dispatch, agents=kimi-cli)
+Ref      : factory-eval-v32/PRDCT-14240   headSha 018b41c85e
+Run URL  : https://github.com/onyxsecurity/onyx/actions/runs/34768770087
+Result   : SUCCESS (all 3 OS jobs green)
+
+Per-job kimi-cli compare (real install -> real scan -> golden compare):
+  Detection (linux):  detected:true (evidence_type dsl_dir, /home/runner/.kimi)
+                      compared 1 agent(s) on linux: 1 passed, 0 failed, 0 xfail
+                      PASS: all 1 compared agents match their goldens on linux
+  Detection (macos):  detected:true (platform darwin, /Users/runner/.kimi)
+                      compared 1 agent(s) on macos: 1 passed, 0 failed, 0 xfail
+                      PASS: all 1 compared agents match their goldens on macos
+  Detection (windows): success (kimi-cli os matrix = linux+macos only; no kimi cell on windows)
+
+Matrix disposition (see PR ## Design Decisions): codex ships linux+darwin+windows; kimi-cli
+ships linux+darwin (os:["linux","macos"] in scanner/test/detector-install/agents.json and the
+embedded_dsl_{linux,darwin}.json envelopes). Windows for kimi-cli stays optional and is called
+out as a named shape deviation.
+
+NOTE: an earlier dispatch (run 34763980210, sha 1a2f0b24a5) FAILED because the committed golden
+carried a stale DynamicCustomData custom-data block; commit 018b41c85e regenerated both goldens
+from the runners' own normalized payloads (the real codex-shaped DefaultChannelCustomData with a
+builtin TUI channel), and this run is the green re-dispatch.

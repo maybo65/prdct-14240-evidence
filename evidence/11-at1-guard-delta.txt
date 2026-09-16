@@ -1,0 +1,25 @@
+AT1 BASE-REF DELTA (non-empty, attributed) — the GUARD-STATUS delta base cannot produce
+========================================================================================
+The base main DSL kimi-cli entry has NO isGuarded block and a residue-only suspectedDir
+([path_join,is_regular_file,...,or]). The PR adds an isGuarded block (guardFormatKimiHooks
+over ~/.kimi/config.toml) + a binary_on_path_for_user("kimi") suspectedDir gate.
+
+Consequence proven on the real system:
+
+(1) Onyx guard hooks installed with the PR scanner (kimi-hooks-install):
+    ~/.kimi/config.toml gained a flat [[hooks]] array:
+      UserPromptSubmit -> hooks --source=kimi_cli --type=prompt
+      PreToolUse       -> hooks --source=kimi_cli --type=tool
+      PostToolUse      -> hooks --source=kimi_cli --type=post_tool
+
+(2) PR scanner re-scan reports isGuarded=True  (base scanner CANNOT: no isGuarded block).
+
+(3) Guard aggregate: base setup scan = 2 guarded agents; PR ingest scan = 3 guarded agents
+    (claude-code, codex, kimi-cli) — "guarded_agents": 3.
+
+(4) DB read-back (tenant onyx_security, desktop_agent_applications, asset id 95):
+    BEFORE (base setup scan): last_guard_status = f ; last_guard_status_at = NULL
+    AFTER  (PR ingest scan)  : last_guard_status = t ; last_guard_status_at = 2026-09-13 14:12:46+00
+    => kimi asset now reports GUARDED at the DB level; the base scan physically left it f/NULL.
+Ingest path: PR scan --endpoint http://ingest-onyx.onyxd.svc.cluster.local:8080/mcp-scanner (Kong key-auth) -> Vector/S3/SQS -> temporal-scanner-worker.
+scan_run_id (PR ingest) = 129d2216-6aaf-4f7d-982b-d5e81455bb76

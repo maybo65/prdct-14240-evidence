@@ -1,0 +1,4 @@
+{"type": "info", "message": "Please visit the following URL to finish authorization."}
+{"type": "verification_url", "message": "Verification URL: https://www.kimi.com/code/authorize_device?user_code=O5IV-V5I9", "data": {"verification_url": "https://www.kimi.com/code/authorize_device?user_code=O5IV-V5I9", "user_code": "O5IV-V5I9"}}
+{"type": "waiting", "message": "Waiting for user authorization...: Authorization is pending", "data": {"error": "authorization_pending", "error_description": "Authorization is pending"}}
+{"type": "success", "message": "Logged in successfully."}

@@ -1,0 +1,52 @@
+================================================================================
+at5 / d12 — "unless sanctioned" negative: a fresh Kimi discovery while SANCTIONED
+raises NO new unsanctioned-platform alert (rescan safety), proven on the real system.
+================================================================================
+
+GOAL (immutable test_plan.json at5, d12 leg):
+  Set Kimi SANCTIONED on the pinned axis THROUGH THE PRODUCT UI, then produce a
+  fresh Kimi discovery (a new REAL scan) and prove the trigger LANDED (scan record
+  with a server-side timestamp AFTER the sanction save), then assert NO fresh
+  unsanctioned-platform alert is raised for the post-sanction window.
+
+TIMELINE (all timestamps server clock, tenant schema onyx_security):
+  15:57:54Z  UI: set Kimi (asset 95) status -> Sanctioned via inventory Status badge
+             (the real product control; drive_at5_set_status.mjs sanctioned; toast=OK)
+  15:58:05Z  issue_instances.id=41 CLOSED  (closed_at 2026-09-13 15:58:05.372503+00)
+             -> the sanction-change trigger fired IssueDetection, matcher NOT_MATCHED,
+                instance closed. asset 95 = AssetStatusSanctioned (updated_at 15:58:05).
+  15:58:19Z  T_SANCTION_SAVE (PUT /access-control/bulk committed; server clock)
+  15:58:29Z  T_SCAN_START — fresh REAL PR-branch scan launched (a new discovery trigger):
+             /tmp/onyx-scanner-pr scan --verbose \
+               --endpoint http://ingest-onyx.onyxd.svc.cluster.local:8080/mcp-scanner \
+               --api-key $INGESTION_DEV_API_KEY
+             scan_run_id = 4060b651-1a46-4000-9b51-13ec729a5726
+             agent_detection {"agent":"kimi-cli","detected":true,
+                              "evidence_type":"dsl_dir","evidence_path":"/home/coder/.kimi"}
+  15:58:35Z  SERVER-SIDE SCAN LANDING (proof the trigger landed after the sanction):
+             asset_install_evidence id=71 (asset_id=95, evidence_type=dsl_dir,
+             evidence_path=/home/coder/.kimi) last_seen_at = 2026-09-13 15:58:35+00
+  15:59:01Z  asset_install_evidence id=71 updated_at = 2026-09-13 15:59:01.114619+00
+             (server persisted the fresh re-observation)
+  15:59:22Z  scanner CLI: "Scan completed successfully"
+
+  => The fresh discovery's server-side landing (15:58:35 observe / 15:59:01 persist)
+     is STRICTLY AFTER the sanction save (15:58:19) and the issue close (15:58:05).
+
+NEGATIVE READ-BACK (post-sanction window, after the fresh scan landed):
+  assets.id=95           status = AssetStatusSanctioned    <-- PRESERVED across rescan
+  issue_instances.id=41  resolve_state = ...Closed
+                         closed_at = 2026-09-13 15:58:05.372503+00  <-- UNCHANGED (not reopened)
+  OPEN/IN_PROGRESS unsanctioned-agent instances for asset 95 (def 89): 0 rows  <-- NO fresh alert
+
+WHY THE RESCAN IS SAFE (mechanism, not luck):
+  The desktop-agent creator sets NO status on upsert (incoming status = NULL).
+  In common/repository/asset.py `_asset_conflict_update`, `status` is in
+  _ASSET_COALESCE_ON_CONFLICT -> status = COALESCE(excluded.status, existing).
+  So a rescan's NULL status coalesces to the STORED AssetStatusSanctioned; the
+  sanction survives the rescan, the matcher sees SANCTIONED, and no new instance opens.
+
+CONCLUSION: d12 PASS — a fresh real Kimi discovery while Sanctioned lands server-side
+(asset_install_evidence id=71, last_seen_at 15:58:35 / updated_at 15:59:01, both after
+the 15:58:19 sanction save) yet raises NO fresh unsanctioned-platform alert; the
+existing instance stays closed. The guard ("...unless sanctioned") holds on the real system.

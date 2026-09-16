@@ -1,0 +1,50 @@
+AT1 SHAPE GUARD (code-level) — (b) NO SPECIAL CASES + (c) NO NEW DB COLUMNS/FIELDS
+====================================================================================
+Base = c7eb97c589 (origin/main merge-base) .. HEAD (4 commits on factory-eval-v32/PRDCT-14240).
+
+--- (c) ZERO new DB columns / persisted model fields ---
+`git diff --stat` migration/model/schema scan:
+  - NO files under migrations/ alembic/ *.sql — NONE. (grep -iE 'migrat|alembic|\.sql$' = empty)
+  - Only two paths under models/ are touched, and NEITHER adds a persisted column:
+    1. common/models/agent_brand_icons.py  (+1): a DATA dict entry
+         "kimi-cli": "/applications/kimi.svg"   (CURATED_AGENT_ICONS map) — a UI icon lookup, not a column.
+    2. sanitization_service/models/evaluate.py (+7): an ENUM VALUE on SourceType (str Enum)
+         KIMI = "kimi_cli"  # URL path: /guard/evaluate/kimi_cli
+       In-memory request-source enum + URL path segment; NOT an ORM/DB field. Its own comment:
+       "resolves by the DIRECT enum match with NO source-specific branch below."
+  => endpoint_kimi-cli persists through the EXISTING desktop-agent schema (assets +
+     desktop_agent_application[_custom_data]) — proven at the DB level: kimi asset row (id 95)
+     is shape-identical to codex (id 23), same columns, 0 custom_data rows each. Zero new columns.
+
+--- (b) NO SPECIAL CASES: every kimi/moonshot hit is a table/registry/DSL entry ---
+grep of ALL added lines for `if|else if|elif|switch|case|when|match` referencing kimi/moonshot,
+restricted to SHARED (non-kimi-dedicated) code = exactly THREE, all registry/table membership:
+
+  1. scanner/cmd/hooks.go
+     - hookHandlers[types.SourceKimi] = agents.NewKimiHooksHandler()
+       => a MAP-REGISTRY entry, byte-parallel to hookHandlers[types.SourceCodex]=NewCodexHooksHandler().
+     - `if !configFound && source != SourceCodex && source != SourceWibey && source != SourceKimi`
+       => Kimi JOINS the existing {Codex,Wibey} set that refuses the project-cwd config fallback
+          (installer writes the sidecar next to the binary). Set-membership extension of a shared
+          security invariant — NOT a kimi-only behavior. Codex+Wibey were already in the same chain.
+
+  2. scanner/internal/scanner/agents/dsl_capability_ops.go
+     - const guardFormatKimiHooks = "kimiHooks"  (a format constant, like guardFormatCodexHooks)
+     - `case guardFormatClaudeSettings, guardFormatCodexHooks, guardFormatCodexRequirements, guardFormatKimiHooks:` (format VALIDATION set)
+     - `case guardFormatKimiHooks: return kimi.HooksFileGuards(fs, path)`
+       => a FORMAT→HANDLER dispatch case, byte-parallel to `case guardFormatCodexHooks: return codex.HooksFileGuards(...)`.
+
+  3. scanner/internal/types/source.go
+     - const SourceKimi Source = "kimi_cli"  + appended to `allowedSources` slice
+       => enum constant + registry slice membership, parallel to every other Source.
+
+Every OTHER kimi conditional in the diff lives INSIDE a kimi-DEDICATED file (kimi_parser.py,
+scanner/internal/agents/kimi/*.go, kimi_hooks.go, kimi_hooks_install(er)/uninstall) — the new
+lane's own generic internals (required-flag checks, hook-type dispatch, dry-run guards),
+structurally identical to how endpoint_codex owns codex.go / codex_parser.py / codex_hooks.
+Those are the lane, not a special-case bolted onto shared code.
+
+CONCLUSION: zero kimi-specific behavioral branches in shared/common paths; zero new DB
+columns/model fields. endpoint_kimi-cli carries EXACTLY the codex attribute shape, minted
+and persisted through the existing desktop-agent machinery, driven entirely by table/registry
+/DSL entries.

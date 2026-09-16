@@ -1,0 +1,63 @@
+{
+  "consult_topic": "enforcement-surface for endpoint_kimi-cli runtime block + unsanctioned-platform alert (Option A policy-BLOCK vs Option B sanctioning-extension)",
+  "endpoint": "https://1lnhnxppl7.gw.onyx.security/data/v1/messages",
+  "http_status": 200,
+  "requested_model": "gpt-6-astra",
+  "served_model": "gpt-6-astra",
+  "response_message_id": "chatcmpl-ENc5XlW88Ennl7jKDEVaiXEngo3q9",
+  "step_tag": "ask-smart-model:research",
+  "gw_tags": {
+    "x-gw-tag-launcher": "maybohadana65@gmail.com",
+    "x-gw-tag-requester": "unknown",
+    "x-gw-tag-ticket": "PRDCT-14240",
+    "x-gw-tag-step": "ask-smart-model:research"
+  },
+  "client_sent_utc": "2026-09-13T10:51:02.868394+00:00",
+  "server_date_header": "Sun, 13 Sep 2026 10:51:28 GMT",
+  "response_headers": {
+    "Date": "Sun, 13 Sep 2026 10:51:28 GMT",
+    "Content-Type": "application/json",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "Server": "nginx/1.27.5",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "cf-ray": "a3a6982f992953e3-IAD",
+    "cf-cache-status": "DYNAMIC",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-content-type-options": "nosniff",
+    "access-control-expose-headers": "CF-Ray",
+    "openai-organization": "onyx-security",
+    "openai-processing-ms": "25181",
+    "openai-project": "proj_OcNdOEmovBUxdGXQbn9qeGup",
+    "openai-version": "2020-10-01",
+    "x-openai-proxy-wasm": "v0.1",
+    "x-ratelimit-limit-requests": "15000",
+    "x-ratelimit-limit-tokens": "40000000",
+    "x-ratelimit-remaining-requests": "14999",
+    "x-ratelimit-remaining-tokens": "39999199",
+    "x-ratelimit-reset-requests": "4ms",
+    "x-ratelimit-reset-tokens": "1ms",
+    "x-request-id": "01a09a64596a7eb2abd09f0156aaf803",
+    "set-cookie": "__cf_bm=FxW62vmT43XSqTCi8cuyagxTHJ9uqxeVZZsdZd7Rgzk-1789296662.9742215-1.0.1.1-5bfULOrYd4vEQxIgflhUr.ZPr3ELLBDH13Dbu4Q9sj_Dl_gwmNqVGfX9dJmU410uvfkovUYe9bQghdkfob6F_nwXkLt1G1LZlgI2A_b5NtN8iIfSAt8SDKr1eMUFRVIP; HttpOnly; SameSite=None; Secure; Path=/; Domain=api.openai.com; Expires=Sun, 13 Sep 2026 11:21:28 GMT"
+  },
+  "usage": {
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "input_tokens": 720,
+    "output_tokens": 1238,
+    "service_tier": "default",
+    "usage_source": "provider"
+  },
+  "request_body": {
+    "model": "gpt-6-astra",
+    "max_tokens": 2048,
+    "system": "You are a senior engineer consulted for a research question. Weigh the real trade-offs, name the options, and give a clear, grounded recommendation.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "You are consulted on ONE architecture decision in the Onyx security platform before I write code.\n\nCONTEXT: I am adding Kimi Code / Kimi CLI (Moonshot AI) as a governed *endpoint coding-agent platform* (app_id `endpoint_kimi-cli`), mirroring the nearest already-supported platform `endpoint_codex`. Hard ticket constraints: \"exactly the attribute set and shape of the nearest already-supported platform. No new fields, no special cases.\" The deliverable has three parts in one PR: (1) discovery of the platform as an asset; (2) a MEDIUM-severity \"unsanctioned-platform\" alert that is raised *unless the platform is sanctioned*; (3) a RUNTIME BLOCK enforced through Kimi's native PreToolUse hooks (same hookSpecificOutput.permissionDecision=\"deny\" contract Onyx already emits for Codex).\n\nTHE DECISION \u2014 which enforcement/admin surface should carry the runtime block, and how should \"sanctioned\" be modeled so it is DISTINCT from \"blocked\"?\n\nTwo candidate surfaces in the codebase:\n\nOPTION A \u2014 AI-Guard BLOCK-action policy (PolicyType=agent, Action=BLOCK) assigned to the `endpoint_kimi-cli` scope on the /runtime-policies surface. This is exactly how Codex/Claude coding agents are blocked today (the hook calls /guard/evaluate, a BLOCK policy matches, the hook emits the deny). \"Sanctioned\" would be modeled as a SEPARATE approval axis on the asset/app_definition (e.g. AccessControlStatus Sanctioned/Unsanctioned/Discovered), which drives ONLY the alert, never the block.\n\nOPTION B \u2014 Extend asset SANCTIONING (AccessControlStatus Sanctioned/Unsanctioned/Discovered \u2014 today applied to MCP servers + AI websites only) to desktop-agent platforms, where the Unsanctioned state BOTH raises the alert AND drives the runtime block via the access-control/authorize decision path.\n\nKey tension: the alert requirement is \"medium severity UNLESS sanctioned\" \u2014 so the alert's trigger is the sanction state. If sanction \u2261 block (Option B collapses them), then \"unless sanctioned\" becomes meaningless because sanctioning an asset to silence the alert would also un-block it, and blocking it would also silence\u2026 i.e. the two axes cannot move independently. The ticket also forbids new fields / special-case code paths and demands shape-parity with Codex (which is governed by Option A's policy lane today).\n\nQUESTION: Which option should I ship, and specifically \u2014 (a) should the runtime BLOCK ride the AI-Guard policy lane (Option A) or the sanctioning lane (Option B)? (b) How should I model the \"sanctioned\" axis so it is a genuine organizational-approval state distinct from enforcement, without introducing kimi-specific special-case code or new fields beyond what Codex carries? (c) For the medium-severity \"unsanctioned platform\" alert, is reviving the retired posture-issue catalog entry ISSUE_UNSANCTIONED_AGENT_DEPLOYED (applies_to DESKTOP_AGENT/AI_AGENT, severity 5.0 = Medium band 4.0-5.9), keyed on that sanction axis, the right lane \u2014 versus emitting a runtime ai_firewall_alert? Give a clear recommendation with reasoning."
+      }
+    ]
+  },
+  "answer": "**Ship Option A: runtime blocking through AI-Guard policies, organizational approval as a separate state, and the unsanctioned-platform finding as a posture issue.** There is one prerequisite: confirm that the approval state can be represented for Kimi **using exactly the same schema available to Codex**. If it cannot, the ticket constraints need clarification\u2014not a Kimi-specific workaround.\n\n### (a) Runtime BLOCK belongs in the AI-Guard policy lane\n\nUse the existing coding-agent enforcement flow you described:\n\n`Kimi PreToolUse \u2192 /guard/evaluate \u2192 matching agent/BLOCK policy \u2192 hook deny`\n\nAssign the policy to `endpoint_kimi-cli` through `/runtime-policies`, and reuse the existing decision-to-hook-output mapping, including `hookSpecificOutput.permissionDecision=\"deny\"`.\n\nThis preserves:\n- **Codex parity:** the same policy type, action, administration surface, and enforcement semantics.\n- **Independent controls:** approval answers \u201cDoes the organization sanction this platform?\u201d A policy answers \u201cShould this invocation be blocked?\u201d\n- **Consistent operations:** policy precedence, exceptions, audit records, and troubleshooting remain in the existing coding-agent lane.\n\nOption B is appropriate only for a product where **\u201cnot approved\u201d deliberately means \u201cnot allowed to execute.\u201d** That is a valid model elsewhere, but it does not meet your requirement for independent approval and enforcement, and it introduces a different enforcement path from Codex.\n\nOne correction to the stated tension: under Option B, marking an asset Unsanctioned would normally **both block it and raise the alert**, not silence the alert. The actual defect is coupling: sanctioning it to clear the finding would necessarily remove that source of blocking.\n\n### (b) Model sanctioning as approval\u2014not as a policy-derived status\n\nThe desired behavior is:\n\n| Organizational approval | Effective runtime BLOCK | Unsanctioned-platform finding | Enforcement |\n|---|---|---|---|\n| Sanctioned | No | Absent/resolved | No block from this policy |\n| Sanctioned | Yes | Absent/resolved | Deny |\n| Unsanctioned or Discovered | No | Open, Medium | No block from this policy |\n| Unsanctioned or Discovered | Yes | Open, Medium | Deny |\n\n\u201cUnless sanctioned\u201d means **only an explicit Sanctioned state suppresses the finding**. Discovered is not implicitly approved. Handle missing approval values according to the existing shared model, without accidentally treating them as sanctioned.\n\nUse the existing `AccessControlStatus` representation **if it is already part of the shared asset/app-definition shape available to Codex**. Store approval at the existing organization-scoped authoritative location; do not introduce competing statuses on both the asset and app definition. A global platform definition alone cannot represent different organizations\u2019 approval decisions.\n\nCrucially:\n- Do not infer approval from the presence or absence of a BLOCK policy.\n- Do not create/delete BLOCK policies when approval changes.\n- Do not interpret Unsanctioned as a runtime deny in this integration.\n- Do not add `kimi_sanctioned`, an extra policy flag, or a Kimi-only authorization branch.\n\n**The schema constraint is a real gate.** The existence of `AccessControlStatus` for MCP servers and websites does not, by itself, prove that Codex carries it or that desktop agents can use it.\n\nBefore implementation, distinguish these cases:\n\n1. **The field already exists in the shared Codex shape; only desktop-agent applicability is missing.** Extend the shared approval/posture applicability generically to coding-agent platforms, including Codex and Kimi, without changing their shape. Confirm that this common behavior extension is within ticket scope.\n2. **Codex genuinely lacks any independent approval representation.** You cannot meet all requirements as written. Request a shared Codex-and-Kimi model change or a ticket amendment. Option B does not fix that contradiction.\n\n### (c) Use the posture-issue lane, not `ai_firewall_alert`\n\n**Reviving `ISSUE_UNSANCTIONED_AGENT_DEPLOYED` is the right semantic choice**, provided its retirement reason and existing lifecycle machinery permit reuse.\n\nThe requirement describes a persistent governance condition:\n\n> A discovered agent platform lacks organizational approval.\n\nThat condition exists even when no tool call occurs. It therefore belongs in discovery/posture evaluation, rather than being manufactured as a runtime firewall event.\n\nUse:\n- The existing applicable agent asset classification (`DESKTOP_AGENT` / `AI_AGENT`, as appropriate to the shared model).\n- Severity **5.0**, within the Medium band you specified.\n- The authoritative approval state as the predicate.\n- Existing posture deduplication, scoping, and resolution behavior.\n\nDiscovery should create the finding when appropriate; sanctioning should resolve it; removing sanction should reopen it while the asset remains applicable. **Changing a BLOCK policy should not change this finding.** Actual runtime denies should retain the ordinary AI-Guard event/audit behavior, independently.\n\nBefore resurrecting the catalog entry, check why it was retired, whether a replacement exists, and whether reactivation could expose stale findings or duplicate detectors. Its name and severity alone do not establish safe reuse.\n\n### Recommendation to record\n\n> Kimi follows Codex\u2019s AI-Guard runtime-policy enforcement path. Organizational sanctioning is an independent, shared approval state used by posture evaluation, not a runtime authorization input. The Medium unsanctioned-platform issue is open unless explicitly sanctioned, regardless of BLOCK policy state.\n\nMake the four-row matrix above acceptance tests. If the existing Codex schema cannot express those four states, resolve that constraint before writing the integration."
+}

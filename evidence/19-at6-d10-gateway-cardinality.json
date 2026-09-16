@@ -1,0 +1,53 @@
+{
+  "window": {
+    "fromISO": "2026-09-13T00:00:00.000Z",
+    "toISO": "2026-09-13T20:45:39.980Z"
+  },
+  "method": {
+    "kind": "request.authorized",
+    "sliceMinutes": 10,
+    "limit": 500,
+    "pagesFetched": 135,
+    "cappedSlicesSubdivided": 5,
+    "maxEventsInASlice": 500,
+    "budgetHit": false
+  },
+  "ticket": "PRDCT-14240",
+  "totalDistinctTicketRequestIds": 1991,
+  "distinctRequestIdsByStep": {
+    "research": 249,
+    "verify": 40,
+    "orchestrator": 118,
+    "setup": 360,
+    "engineer": 1222,
+    "ask-smart-model:research": 1,
+    "ask-smart-model:issue": 1
+  },
+  "askSmartModelConsults": {
+    "distinctRequestIdCount": 2,
+    "requestIds": [
+      "01a09a64596a7eb2abd09f0156aaf803",
+      "01a09b677a1871c3b34e929057a313d1"
+    ],
+    "events": [
+      {
+        "request_id": "01a09a64596a7eb2abd09f0156aaf803",
+        "kind": "request.authorized",
+        "step": "ask-smart-model:research",
+        "ticket": "PRDCT-14240",
+        "virtual_key": "cred_01a05d5b24247e908275bd1fce773d89",
+        "ts_ms": 1789296662890,
+        "ts_iso": "2026-09-13T10:51:02.890Z"
+      },
+      {
+        "request_id": "01a09b677a1871c3b34e929057a313d1",
+        "kind": "request.authorized",
+        "step": "ask-smart-model:issue",
+        "ticket": "PRDCT-14240",
+        "virtual_key": "cred_01a05d5b24247e908275bd1fce773d89",
+        "ts_ms": 1789313645080,
+        "ts_iso": "2026-09-13T15:34:05.080Z"
+      }
+    ]
+  }
+}

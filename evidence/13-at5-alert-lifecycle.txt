@@ -1,0 +1,35 @@
+=== at5: Medium 'Unsanctioned AI Agent Deployed' alert — full lifecycle on the real system ===
+captured_at (UTC): 2026-09-13T15:52:32Z
+PR-branch HEAD: fac8e28ea76d829fd5fdcf296bc61827933f4b92
+
+--- Alert (issue definition) identity: MEDIUM severity, revived posture issue ---
+ id |         identifier          |             title              | severity | is_enabled 
+----+-----------------------------+--------------------------------+----------+------------
+ 89 | unsanctioned-agent-deployed | Unsanctioned AI Agent Deployed |        5 | t
+(1 row)
+  (severity=5 => MEDIUM in the product's severity scale; is_enabled=t via the shipped revive migration a1b7c3e5d9f2)
+
+--- Alert subject (attribution): the discovered Kimi CLI desktop-agent asset ---
+ id |       name       |         type          |      sub_type       |         status          
+----+------------------+-----------------------+---------------------+-------------------------
+ 95 | Kimi CLI (coder) | AssetTypeDesktopAgent | AssetSubTypeAIAgent | AssetStatusUnsanctioned
+(1 row)
+
+--- Sanction axis pin: the ONLY status that clears the alert is SANCTIONED ---
+  matcher: canonical_status = asset.status or DISCOVERED; fires when != SANCTIONED
+  (mirrors inventory read-model coalesce of a NULL stored status to DISCOVERED)
+
+--- Lifecycle (single instance id=41, reused across close/reopen => dedup control) ---
+ id | issue_definition_id | asset_id |         resolve_state         |          created_at           | closed_at |       last_observed_at        
+----+---------------------+----------+-------------------------------+-------------------------------+-----------+-------------------------------
+ 41 |                  89 |       95 | IssueInstanceResolveStateOpen | 2026-09-13 15:25:04.312571+00 |           | 2026-09-13 15:51:49.738581+00
+(1 row)
+  Observed sequence (all driven through the real product UI status badge, PUT /access-control/bulk):
+   1) Unsanctioned  -> issue 41 OPEN   (created 2026-09-13 15:25:04, pipeline detection)
+   2) Sanctioned    -> issue 41 CLOSED (closed_at 2026-09-13 15:50:37) via _recompute_agent_issues_after_sanction_change trigger -> IssueDetection -> matcher NOT_MATCHED
+   3) Unsanctioned  -> issue 41 REOPENED (closed_at cleared, last_observed 15:51:49) via same trigger -> matcher MATCHED
+  => allow(open)->deny(closed)->allow(open) proven; the SAME instance is reused (no duplicate rows) confirming dedup.
+
+--- Trigger provenance: no scheduled full-sweep exists; the toggle itself fires detection ---
+  Wired in crud_service bulk_update_access_control_rules for DESKTOP_AGENT / HOMEGROWN+AI_AGENT assets only,
+  fire-and-forget after commit, deterministic workflow id, TERMINATE_EXISTING (rapid re-toggle supersedes).

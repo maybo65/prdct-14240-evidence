@@ -1,0 +1,2 @@
+{"thread_ok": true, "issuer_tagged": true, "issuer_slack_id": "U09R2BCFDLG", "dm_ok": true, "dm_context_intact": true, "dm_user": "U09R2BCFDLG", "dm_permalink": "https://onyx-security.slack.com/archives/D0B6V65HCEN/p1789297883176619", "thread_permalink": "https://onyx-security.slack.com/archives/C0BCW4JDZB2/p1789288548261129?thread_ts=1789288548.261129&cid=C0BCW4JDZB2"}
+[run-events 2026-09-13T11:11:23Z] escalated (capability-matrix-gate): issuer=U09R2BCFDLG + DM to U09R2BCFDLG

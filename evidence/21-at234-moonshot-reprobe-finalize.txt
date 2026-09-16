@@ -1,0 +1,26 @@
+AT2/AT3/AT4 runtime-block LIVE legs — finalize-time re-probe of the Moonshot access wall
+========================================================================================
+Purpose: Gap 1 asked to watch for provider access landing and, the moment it does, drive
+the full allow -> deny -> re-allow live capture. This is the finalize-time re-check.
+
+Probe (bounded 60s), engineer phase, run window close:
+  $ kimi -p "Reply with exactly: QUOTA-PROBE-OK" --print --quiet
+  Error code: 403 - {'error': {'message': "You've reached your monthly usage limit for
+  this billing cycle. Your quota will be refreshed in the next cycle. To continue now,
+  purchase extra usage or upgrade your plan: https://www.kimi.com/membership/...",
+  'type': 'access_terminated_error'}}
+
+Verdict: access has NOT landed. The pinned, non-substitutable Moonshot/Kimi provider is
+still over its monthly quota (same 403 access_terminated_error captured by setup in
+evidence/setup-20-kimi-moonshot-quota-403.txt). The unblock is the human Mesh top-up /
+plan upgrade, which has not occurred; env_setup.md records the Mesh merchant-policy decline.
+
+Disposition (unchanged, honest): the three runtime-block LIVE-session legs remain
+BLOCKED on this external access wall. The runtime-block CODE ships in full and is unit-
++ shape-proven and rides the identical /guard/evaluate path proven for the other lanes;
+the live legs are reported BLOCKED, NOT substituted with another provider (forbidden) and
+NOT faked. kimi-cli 1.50.0 is installed and OAuth-authenticated on the box; the only
+missing input is provider quota.
+
+config.toml [providers.moonshot] is configured against the real Moonshot endpoint (no
+LiteLLM/OpenAI substitution). ~/.kimi/config.toml present; credentials/ present.
