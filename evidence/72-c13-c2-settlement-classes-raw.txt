@@ -1,0 +1,42 @@
+C13/C2 settlement-classes — raw snapshots + driver log excerpts
+captured: 2026-09-22T13:18:43Z
+Postgres :5433  Temporal :7244 (deployed scanner worker)  localstack S3 :4599
+drivers: /tmp/c13_laneA_scanner.py /tmp/c13_laneA_nokimi.py /tmp/c13_laneB_newlane.py /tmp/c13_laneB_nokimi.py
+
+############ FINAL SNAPSHOTS (both tenants, after all classes) ############
+----- SNAP LANE A FINAL (kimi_diff_scanner)  schema=kimi_diff_scanner -----
+kimi_assets(id|name|is_deleted|status|updated_at): 1|Kimi CLI (coder)|false|-|2026-09-22 10:35:00.996736+00
+kimi_asset_count: 1
+kimi_asset_id: 1
+kimi_tools(count|active|names): 9|active=9 :: FetchURL,Glob,Grep,ReadFile,ReadMediaFile,SearchWeb,Shell,StrReplaceFile,WriteFile
+kimi_tools_updated_max: 2026-09-22 10:35:01.68436+00
+daa(id|asset|guard|last_scanned) for kimi: 1|1|true|2026-09-22 13:06:59.286603+00
+all_daa_count: 3   all_asset_count(desktopagent): 3
+claude/codex assets: Claude Code (coder),Codex (coder)
+
+----- SNAP LANE B FINAL (kimi_diff_newlane)  schema=kimi_diff_newlane -----
+kimi_assets(id|name|is_deleted|status|updated_at): 3|Kimi CLI (coder)|false|-|2026-09-22 10:35:01.622008+00
+kimi_asset_count: 1
+kimi_asset_id: 3
+kimi_tools(count|active|names): 9|active=9 :: FetchURL,Glob,Grep,ReadFile,ReadMediaFile,SearchWeb,Shell,StrReplaceFile,WriteFile
+kimi_tools_updated_max: 2026-09-22 10:35:01.863165+00
+daa(id|asset|guard|last_scanned) for kimi: 3|3|true|2026-09-22 13:09:06.197946+00
+all_daa_count: 3   all_asset_count(desktopagent): 3
+claude/codex assets: Claude Code (coder),Codex (coder)
+
+############ extractor dry-run: full vs nokimi (shared route_lines+extract_inventory) ############
+full   -> agents [kimi-cli, claude-code, codex]
+nokimi -> agents [claude-code, codex]   (kimi scan record 'scanner-agent-kimi-cli-*' dropped; no error)
+
+############ Lane A omit-rescan driver output (kimi omitted from write set) ############
+extracted 2 desktop agents (SAME as lane B):
+  - app_name=claude-code tools=None mcp_servers=5
+  - app_name=codex tools=None mcp_servers=0
+>>> start_workflow id=c13-laneA-nokimi-32a0c5ae-70a9-486e-ae32-4d2496aeafa3
+=== still running after 150s; status=1 id=c13-laneA-nokimi-32a0c5ae-70a9-486e-ae32-4d2496aeafa3 ===
+DONE
+
+############ Lane B log excerpts (re-delivery + omit-rescan) — conservative reconcile + no downgrade ############
+reconcile SKIPPED for agent with empty keep-set — no MCP-detection payload in this object; connections left intact (empty scan treated as no-signal, not uninstall-everything)
+Guard aggregate skipped: scan incomplete (partial/cancelled run must not downgrade) agents_in_aggregate=3 serial_number=ec2f0fe614763f6d5bf528f0dc29322c
+ingested scanner object  s3_key=...kimi-scan-nokimi.jsonl  tenant_schema=kimi_diff_newlane   OUTCOME: processed
