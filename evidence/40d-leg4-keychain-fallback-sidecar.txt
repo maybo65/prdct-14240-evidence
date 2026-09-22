@@ -1,0 +1,32 @@
+LEG 4 — Installer with OS keychain unavailable -> plaintext sidecar fallback
+HEAD 16322b883c48e0a836b16eddea6a175442cfbd82  |  captured 2026-09-20 (UTC)
+Binary: /tmp/onyx-scanner-pr kimi-hooks-install --force --api-key <REDACTED> --verbose ...
+Keychain env: DBUS_SESSION_BUS_ADDRESS unset, /run/user/1001/bus absent, dbus-launch not on PATH.
+
+== keychain_outcome (raw scanner log) ==
+2026-09-20T03:47:28.823911103Z	WARN	keychain_outcome	{"event": "keychain_outcome", "op": "put", "outcome": "fallback_env", "reason": "keychain_unavailable", "caller": "kimi_hooks", "cycle_id": "0edde028", "platform": "linux", "target_home_set": true, "target_home_tail": "coder", "target_index": 0, "total_targets": 1, "error": "exec: \"dbus-launch\": executable file not found in $PATH"}
+
+== installation summary (raw scanner stdout) ==
+📊 Installation summary:
+hooks_file: /home/coder/.kimi/config.toml
+file_existed: true
+hooks_added: 1
+  - UserPromptSubmit: Onyx AI Guard prompt evaluation
+  - PreToolUse (all tools): Onyx AI Guard tool-execution evaluation
+  - PostToolUse (all tools): Onyx AI Guard tool-result audit
+✅ Kimi hooks installed successfully!
+   Restart Kimi to apply changes.
+
+== resulting sidecar /home/coder/.kimi/onyx/onyx-config.json (api-key redacted) ==
+-rw------- 1 coder coder 318 Sep 20 03:47 /home/coder/.kimi/onyx/onyx-config.json
+  "api-key": "<REDACTED len=33 sha256=a9f6430fbb2697277be97354be8b6ab634433dc3778d3463ff33fd9725c63264>"
+  "endpoint-url": "http://onyx-ai-firewall.onyxd.svc.cluster.local:8080"
+  "ingest-endpoint": "http://ingest-onyx.onyxd.svc.cluster.local:8080/mcp-scanner"
+  "timeout": 30000000000
+  "verbose": true
+  "block-prompts": "true"
+  "hooks-runtime-protection": true
+
+PROOF: sidecar api-key sha256 == input --api-key sha256 (a9f6430fbb2697277be97354be8b6ab634433dc3778d3463ff33fd9725c63264).
+keychain_outcome=fallback_env/keychain_unavailable -> PutInstallSecretForAllOrCurrentUser returned false
+-> apiKeyForFile kept -> writeOnyxConfigFile persisted the key in plaintext in the sidecar.
