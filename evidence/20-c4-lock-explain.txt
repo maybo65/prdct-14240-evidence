@@ -1,90 +1,102 @@
-C4 — issue-recalc keyset batching: real EXPLAIN + lock footprint at >2 devices
-================================================================================
-Branch:  factory-eval-v32/PRDCT-14240
-Query under test (SHIPPED, backend_python/src/common/repository/asset.py:361,
-  AssetRepository.get_asset_id_batch_by_app_definition_ids):
-    SELECT asset.id
-      FROM assets AS asset
-     WHERE asset.app_definition_id IN (:ids)
-       AND asset.is_deleted = false
-       AND asset.id > :after_id            -- keyset cursor
-     ORDER BY asset.id
-     LIMIT :batch_size                     -- AGENT_ISSUE_RECALC_BATCH_SIZE = 1000
-                                           -- (crud_service/api/routes/access_control.py:823)
+C4 — sanction status-write lock/transaction footprint + post-commit issue-recalc keyset
+=========================================================================================
+Branch: factory-eval-v32/PRDCT-14240
+Tenant: onyx_security (e2e kind cluster kind-slate, ns onyxd, pod postgres-1).
+Captured 2026-09-22 via `kubectl exec ... psql` (DBA read path for an EXPLAIN/lock
+inspection). Real device families top out at 2 devices on the frozen base, so a
+family of 30,000 devices (app_definition_id='c4-explain-probe') was SEEDED INSIDE A
+TRANSACTION purely to size these statements ABOVE the 25,000-row chunk gate, then
+ROLLED BACK — the final SELECT proves 0 rows remain (zero pollution).
 
-Driver: the recalc route pages this keyset in a `while True:` loop, starting ONE
-IssueDetectionWorkflowInput per page (≤1000 asset_ids), so the whole-family recalc
-never loads the family into a single workflow payload. This EXPLAIN proves the
-page is a bounded, short, read-only index scan even when the family is large.
+=========================================================================================
+PART 1 — the sanction STATUS WRITE (the write the PR-body C4 section describes)
+  Code: AssetRepository.bulk_update_asset_status_by_app_definition_ids
+        backend_python/src/common/repository/asset.py:2084
+        _STATUS_UPDATE_CHUNK_ROWS = 25_000 (asset.py:43)
+  Statement shape (asset.py:2145-2173):
+    UPDATE assets
+       SET status = CASE WHEN app_definition_id = :id THEN :status ELSE status END,
+           updated_at = now()
+     WHERE app_definition_id IN (:matched_ids) [AND id > :lower] [AND id <= :upper]
+  Chunk boundaries via a row_number() window (asset.py:2168-2170).
+-----------------------------------------------------------------------------------------
+matched family size = 30000  (> 2 devices, > 25k chunk gate)
 
-Environment: e2e kind cluster kind-slate, ns onyxd, pod postgres-1, tenant schema
-onyx_security. Max real device family on the frozen base is 2, so a family of
-30,000 devices was SEEDED INSIDE A TRANSACTION (app_definition_id='c4-explain-probe')
-purely to size the query above BOTH gates (25k chunk gate, 5k reproject gate),
-then ROLLED BACK — final SELECT proves 0 rows remain (zero pollution).
+--- REAL 25k chunk-boundary query (row_number() OVER (ORDER BY id), rn % 25000 = 0) ---
+ Subquery Scan on t  (actual time=12.629..14.151 rows=1 loops=1)
+   Filter: ((t.rn % '25000'::bigint) = 0)   Rows Removed by Filter: 29999
+   ->  WindowAgg (rows=30000)
+         ->  Sort  Sort Key: assets.id  Sort Method: quicksort  Memory: 769kB
+               ->  Index Scan using asset_app_definition_id on assets (rows=30000)
+                     Index Cond: ((app_definition_id)::text = 'c4-explain-probe'::text)
+ Execution Time: 14.178 ms
+  => 30000 rows / 25000 yields ONE boundary id = 900024999 => TWO bounded chunks.
 
---------------------------------------------------------------------------------
-seeded_family_size = 30000   (INSERT 0 30000, then counted; >2 devices, well above 25k/5k)
+--- CHUNK 1 UPDATE (id <= 900024999) — EXPLAIN (ANALYZE, BUFFERS) ---
+ Update on assets  (actual time=636.287..636.288 rows=0 loops=1)
+   ->  Index Scan using asset_app_definition_id on assets (rows=25000)
+         Index Cond: ((app_definition_id)::text = 'c4-explain-probe'::text)
+         Filter: (id <= 900024999)   Rows Removed by Filter: 5000
+ Execution Time: 636.361 ms          <- 25,000 rows, bounded, << 30s statement_timeout
 
-=== SHIPPED bounded keyset page (LIMIT 1000) — EXPLAIN (ANALYZE, BUFFERS) ===
- Limit  (cost=8.31..8.32 rows=1 width=8) (actual time=7.469..7.559 rows=1000 loops=1)
-   Buffers: shared hit=685
-   ->  Sort  (cost=8.31..8.32 rows=1 width=8) (actual time=7.468..7.501 rows=1000 loops=1)
-         Sort Key: id
-         Sort Method: top-N heapsort  Memory: 49kB
-         Buffers: shared hit=685
-         ->  Index Scan using asset_app_definition_id on assets asset
-               (cost=0.28..8.30 rows=1 width=8) (actual time=0.009..6.024 rows=30000 loops=1)
+--- CHUNK 2 UPDATE (id > 900024999) — EXPLAIN (ANALYZE, BUFFERS) ---
+ Update on assets  (actual time=135.863..135.863 rows=0 loops=1)
+   ->  Index Scan using asset_app_definition_id on assets (rows=5000)
+         Index Cond: ((app_definition_id)::text = 'c4-explain-probe'::text)
+         Filter: (id > 900024999)   Rows Removed by Filter: 25000
+ Execution Time: 135.892 ms          <- remaining 5,000 rows
+
+  Both chunks: NO sequential scan — the predicate rides the dedicated btree
+  `asset_app_definition_id`. The prior single-statement UPDATE over a 200K+-row
+  family would outrun the 30s timeout; the 25k chunking keeps every statement bounded.
+
+--- LOCK FOOTPRINT held on the assets objects during the write (pg_locks, this pid) ---
+ relation | assets                       | AccessShareLock  | t
+ relation | assets                       | RowExclusiveLock | t   <- table-level INTENT lock
+ relation | asset_app_definition_id      | RowExclusiveLock | t   (+ AccessShareLock)
+ relation | asset_status                 | RowExclusiveLock | t   (+ AccessShareLock)
+ relation | asset_status_id              | RowExclusiveLock | t   (+ AccessShareLock)
+ ... (every assets index: AccessShareLock + RowExclusiveLock for index maintenance) ...
+ access_exclusive_locks = 0            <- NO AccessExclusiveLock, NO LOCK TABLE
+
+  The UPDATE takes only a table-level RowExclusiveLock (intent) on `assets` plus the
+  per-index RowExclusiveLock that ordinary DML index maintenance requires. It never
+  escalates to ACCESS EXCLUSIVE and never issues LOCK TABLE, so writers to any OTHER
+  tenant/app-definition row are never blocked. Row-level exclusive locks are taken
+  ONLY on the rows the index scan actually reaches (the sanctioned family); Postgres
+  records those in the tuple xmax, not as separate pg_locks rows. Ascending-id chunk
+  order makes row-lock acquisition deterministic across concurrent sanction toggles
+  (no lock-order deadlock).
+
+=========================================================================================
+PART 2 — the POST-COMMIT issue-recalc keyset read (moved OUT of the txn)
+  Code: AssetRepository.get_asset_id_batch_by_app_definition_ids (asset.py:361),
+        driven post-commit by _recompute_agent_issues_after_sanction_change
+        (access_control.py:826, keyset read at :876-878),
+        AGENT_ISSUE_RECALC_BATCH_SIZE = 1000 (access_control.py:823).
+  Statement:
+    SELECT asset.id FROM assets
+     WHERE app_definition_id IN (:ids) AND is_deleted = false AND id > :after_id
+     ORDER BY asset.id LIMIT 1000
+-----------------------------------------------------------------------------------------
+--- SHIPPED bounded keyset page (LIMIT 1000) — EXPLAIN (ANALYZE, BUFFERS), 30k family ---
+ Limit  (actual time=7.469..7.559 rows=1000 loops=1)   Buffers: shared hit=685
+   ->  Sort  Sort Key: id  Sort Method: top-N heapsort  Memory: 49kB
+         ->  Index Scan using asset_app_definition_id on assets (rows=30000)
                Index Cond: ((app_definition_id)::text = 'c4-explain-probe'::text)
                Filter: ((NOT is_deleted) AND (id > 0))
-               Buffers: shared hit=682
- Planning Time: 0.176 ms
  Execution Time: 7.605 ms
 
-  Reading: uses the dedicated btree `asset_app_definition_id`; top-N heapsort caps
-  output at LIMIT 1000; 685 shared buffer hits, 0 reads from disk; 7.6 ms total.
-  A bounded, in-memory, read-only page. Each keyset step advances `id > :after_id`
-  so successive pages never re-scan prior ids.
+--- lock footprint of the READ page (separate capture) ---
+  ONLY AccessShareLock on `assets` + indexes. No RowExclusiveLock, no FOR UPDATE, no
+  row locks. (The RowExclusiveLock seen alongside it in a combined capture is the
+  in-txn SEED INSERT, not the SELECT.) A recalc page cannot block writers.
 
-=== lock footprint held by this backend during the read (pg_locks, this pid) ===
- locktype |             rel              |       mode       | granted
-----------+------------------------------+------------------+---------
- relation | asset_app_definition_id      | AccessShareLock  | t
- relation | asset_external_scope_id      | AccessShareLock  | t
- relation | asset_is_deleted             | AccessShareLock  | t
- relation | asset_status                 | AccessShareLock  | t
- relation | asset_status_id              | AccessShareLock  | t
- relation | asset_surface                | AccessShareLock  | t
- relation | asset_type_app_definition_id | AccessShareLock  | t
- relation | asset_type_group_key         | AccessShareLock  | t
- relation | assets                       | AccessShareLock  | t
- relation | assets                       | RowExclusiveLock | t   <-- from the SEED INSERT, not the read
- relation | assets_effective_group_key   | AccessShareLock  | t
- relation | assets_group_key_lower       | AccessShareLock  | t
- relation | assets_model_ref             | AccessShareLock  | t
- relation | assets_unique_identifier_key | AccessShareLock  | t
+--- CONTRAST: the REMOVED unbounded whole-family read (no LIMIT) ---
+ Index Scan using asset_app_definition_id on assets (rows=30000)   Execution Time: 6.113 ms
+  Same index but emits all 30,000 ids in one shot — the prior code fed exactly this
+  into a single workflow input. The keyset+LIMIT replaces it with 30 bounded 1000-id
+  pages -> 30 bounded workflow starts (see C6 payload evidence for the size math).
 
-  HONEST NOTE: the RowExclusiveLock on `assets` is taken by the seeding INSERT that
-  runs earlier in this SAME transaction (needed only to fabricate the 30k family);
-  it is NOT taken by the SELECT. The recalc read path (the query above) acquires
-  ONLY AccessShareLock on the table and the indexes it touches — no row locks, no
-  FOR UPDATE, no Share/Exclusive table lock. A recalc page cannot block writers.
-
-=== CONTRAST: the REMOVED unbounded whole-family read (no LIMIT) ===
- Index Scan using asset_app_definition_id on assets asset
-   (cost=0.28..8.30 rows=1 width=8) (actual time=0.010..5.172 rows=30000 loops=1)
-   Index Cond: ((app_definition_id)::text = 'c4-explain-probe'::text)
-   Filter: (NOT is_deleted)
- Execution Time: 6.113 ms
-
-  Same index, but with NO LIMIT it emits all 30,000 ids in one shot. The prior code
-  fed exactly this whole-family result into a single workflow input. The shipped
-  keyset+LIMIT replaces it with 30 bounded 1000-id pages -> 30 bounded workflow
-  starts, each carrying ≤1000 ints (see C6 payload evidence for the size math).
-
-=== after ROLLBACK: proof of zero pollution ===
- rows_remaining_after_rollback = 0
-
-Captured: 2026-09-22, kubectl exec -n onyxd postgres-1 -- psql (DBA read path for a
-lock/EXPLAIN inspection; not a feature front-door test). Raw session: reproducible
-via the SQL in this run.
+=========================================================================================
+after ROLLBACK: rows_remaining_after_rollback = 0   (zero pollution)
