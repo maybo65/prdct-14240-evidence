@@ -1,0 +1,18 @@
+LEG 1 — KIMI_SHARE_DIR redirect + unset control
+HEAD 16322b883c48e0a836b16eddea6a175442cfbd82  |  captured 2026-09-20 (UTC)
+Binary: /tmp/onyx-scanner-pr    Command: scan --verbose --full-scan=false --output-file <jsonl>
+Secrets redacted.
+
+== 1a: KIMI_SHARE_DIR=/tmp/kimi-altshare set (coder's own env) ==
+-- agent_detection (raw scanner stdout) --
+2026-09-20T03:42:40.094763151Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/tmp/kimi-altshare", "username": "coder"}
+2026-09-20T03:42:40.094958739Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/coder/.kimi", "username": "coder"}
+-- detection payload fields (codingAgent) --
+{"configPath": "/tmp/kimi-altshare", "configExists": true, "isGuarded": true, "installEvidenceType": "dsl_dir", "installEvidencePath": "/tmp/kimi-altshare", "mcpServers": ["altshare-marker-server"], "username": "coder"}
+{"configPath": "/home/coder/.kimi", "configExists": true, "isGuarded": true, "installEvidenceType": "dsl_dir", "installEvidencePath": "/home/coder/.kimi", "mcpServers": ["altshare-marker-server"], "username": "coder"}
+
+== 1b: KIMI_SHARE_DIR UNSET (control) ==
+-- agent_detection (raw scanner stdout) --
+2026-09-20T03:42:46.30983102Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/coder/.kimi", "username": "coder"}
+-- detection payload fields (codingAgent) --
+{"configPath": "/home/coder/.kimi", "configExists": true, "isGuarded": true, "installEvidenceType": "dsl_dir", "installEvidencePath": "/home/coder/.kimi", "mcpServers": ["e2e-filesystem"], "username": "coder"}
