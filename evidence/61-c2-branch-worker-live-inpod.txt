@@ -1,0 +1,23 @@
+# C2 evidence — branch worker running LIVE in the ingest pod (Tilt live-update re-reconcile)
+# captured: 2026-09-22T08:59:28Z
+
+## Pod restartCount (stable since single-file sync)
+restartCount=6
+ready=true
+image=localhost:5001/onyx/temporal-scanner-worker:tilt-e206994510305acd
+
+## In-pod: live /app/src source md5 + line count, module actually imported (inspect.getsource), and derived tools
+live_source_md5=85ad4fae0d29e20313c4c1f6bb52feab
+live_source_lines=229
+imported_module_lines=229
+imported_module_src_md5=85ad4fae0d29e20313c4c1f6bb52feab
+derived_tool_count=9
+   Shell | builtin:kimi-cli:Shell | CapabilityTag.EXECUTE_COMMAND
+   ReadFile | builtin:kimi-cli:ReadFile | CapabilityTag.READ_FILE
+   WriteFile | builtin:kimi-cli:WriteFile | CapabilityTag.UPDATE_FILE
+   StrReplaceFile | builtin:kimi-cli:StrReplaceFile | CapabilityTag.UPDATE_FILE
+   SearchWeb | builtin:kimi-cli:SearchWeb | CapabilityTag.SEARCH_WEB
+   FetchURL | builtin:kimi-cli:FetchURL | CapabilityTag.HTTP_REQUEST
+   ReadMediaFile | builtin:kimi-cli:ReadMediaFile | CapabilityTag.READ_FILE
+   Glob | builtin:kimi-cli:Glob | CapabilityTag.SEARCH_CODE
+   Grep | builtin:kimi-cli:Grep | CapabilityTag.SEARCH_CODE

@@ -1,0 +1,37 @@
+# C2 evidence — onyx_security.tools WHERE service='kimi-cli' (live onyxd DB, real front-door ingest)
+# captured: 2026-09-22T08:58:51Z
+# worker temporal-scanner-worker-85b776b68d-zppnl (ns onyxd) restartCount=6; branch kimi_cli.py md5 85ad4fae0d29e20313c4c1f6bb52feab (229 lines) live-loaded, imports 9 tools
+
+## Query 1 — full kimi-cli tool rows (9 fresh Kimi-own @ 08:47 today + 5 legacy codex-style @ 09-13)
+    function    |           external_id           |   capability   |          created_at           |          updated_at           | asset_id | is_active 
+----------------+---------------------------------+----------------+-------------------------------+-------------------------------+----------+-----------
+ FetchURL       | builtin:kimi-cli:FetchURL       | HttpRequest    | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ Glob           | builtin:kimi-cli:Glob           | SearchCode     | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ Grep           | builtin:kimi-cli:Grep           | SearchCode     | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ ReadFile       | builtin:kimi-cli:ReadFile       | ReadFile       | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ ReadMediaFile  | builtin:kimi-cli:ReadMediaFile  | ReadFile       | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ SearchWeb      | builtin:kimi-cli:SearchWeb      | SearchWeb      | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ Shell          | builtin:kimi-cli:Shell          | ExecuteCommand | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ StrReplaceFile | builtin:kimi-cli:StrReplaceFile | UpdateFile     | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ WriteFile      | builtin:kimi-cli:WriteFile      | UpdateFile     | 2026-09-22 08:47:01.593841+00 | 2026-09-22 08:47:01.593841+00 |       95 | t
+ apply_patch    | builtin:kimi-cli:apply_patch    | UpdateFile     | 2026-09-13 14:13:01.310604+00 | 2026-09-13 14:13:01.310604+00 |       95 | t
+ list_dir       | builtin:kimi-cli:list_dir       | ReadFile       | 2026-09-13 14:13:01.310604+00 | 2026-09-13 14:13:01.310604+00 |       95 | t
+ read_file      | builtin:kimi-cli:read_file      | ReadFile       | 2026-09-13 14:13:01.310604+00 | 2026-09-13 14:13:01.310604+00 |       95 | t
+ shell          | builtin:kimi-cli:shell          | ExecuteCommand | 2026-09-13 14:13:01.310604+00 | 2026-09-13 14:13:01.310604+00 |       95 | t
+ web_search     | builtin:kimi-cli:web_search     | SearchWeb      | 2026-09-13 14:13:01.310604+00 | 2026-09-13 14:13:01.310604+00 |       95 | t
+(14 rows)
+
+
+## Query 2 — asset 95 identity (the desktop-agent asset these tools hang off)
+ id |       name       |         type          |          created_at           |          updated_at           
+----+------------------+-----------------------+-------------------------------+-------------------------------
+ 95 | Kimi CLI (coder) | AssetTypeDesktopAgent | 2026-09-13 09:50:00.855005+00 | 2026-09-22 08:47:01.442265+00
+(1 row)
+
+
+## Query 3 — count of the 9 fresh Kimi-own rows (updated today 2026-09-22)
+ fresh_kimi_own_rows 
+---------------------
+                   9
+(1 row)
+
