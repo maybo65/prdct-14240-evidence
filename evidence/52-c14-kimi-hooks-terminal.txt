@@ -1,0 +1,79 @@
+############ C14 TERMINAL CAPTURE — kimi-hooks install/uninstall (HEAD binary) ############
+binary: ~/.kimi/onyx/onyx-scanner  (branch factory-eval-v32/PRDCT-14240, built 2026-09-20T03:47:28Z)
+host: Linux 6.8.0-1063-aws x86_64  user: coder  captured_at: 2026-09-20T04:16:08Z
+
+===== [1/3] INSTALL --dry-run (preview, no change) =====
+2026-09-20T04:16:08.071628566Z	INFO	Scanner starting	{"version": "dev", "environment": "dev", "command": "onyx-scanner kimi-hooks-install", "trigger_method": "", "invocation_source": "", "executable": "/home/coder/.kimi/onyx/onyx-scanner", "pid": 13125, "ppid": 13119, "username": "coder", "user_id": "1001", "group_id": "1001", "euid": 1001, "home_dir": "/home/coder", "hostname": "ip-10-10-6-62", "os": "linux", "platform": "ubuntu", "platform_family": "debian", "os_version": "22.04", "kernel_version": "6.8.0-1063-aws", "kernel_arch": "x86_64", "architecture": "amd64", "go_version": "go1.26.6", "working_dir": "/home/coder/onyx"}
+2026-09-20T04:16:08.07171859Z	INFO	Starting Kimi hooks installation
+2026-09-20T04:16:08.071732286Z	ERROR	API key is required for installation
+Error: --api-key is required. Set it during installation to embed credentials in the config file
+Usage:
+  onyx-scanner kimi-hooks-install [flags]
+
+Flags:
+      --api-key string             API key for authentication (required). Env - ONYX_API_KEY
+      --block-prompts string       Enable hard block mode instead of replacement (true/false, default: true) (default "true")
+      --dry-run                    Show what would be changed without applying modifications
+      --endpoint string            Custom endpoint URL (default: https://ai-guard.onyx.security). Env - ONYX_AI_GUARD_ENDPOINT
+      --force                      Force overwrite of existing Onyx hooks
+  -h, --help                       help for kimi-hooks-install
+  -p, --hooks-path string          Custom config file path (default: per-user ~/.kimi/config.toml)
+      --hooks-runtime-protection   Run the hook's content evaluation (tool/content rules + usage events) on each tool call. Turn off to run MCP sanctioning only — use when the agent is also protected by the base-url firewall, so content is evaluated and recorded exactly once. Gates the hooks lane ONLY: it does not affect --mcp-guard-hooks sanctioning, and it does not disable the base-url firewall (default true)
+      --scan-api-key string        API key for post-operation scan (optional)
+      --scan-endpoint string       Ingest endpoint for post-operation scan (optional)
+      --scanner-api-url string     Base URL of the scanner-api service used by the MCP probe cache (e.g. https://api.<tenant>). Empty disables the cache.
+  -v, --verbose                    Enable verbose output
+
+Global Flags:
+      --dsl-enabled      Detect claude-code and the Codex CLI with the DSL envelope instead of the native Go detectors (env: ONYX_SCANNER_DSL_ENABLED; default legacy Go; an explicit flag beats the env)
+      --log-dir string   Directory to store log files (default "~/.onyx/mcp-scanner/logs")
+  -q, --quiet            Don't print logs to console
+      --skip-certs       Skip SSL certificate verification (env: ONYX_SKIP_CERTS)
+
+--api-key is required. Set it during installation to embed credentials in the config file
+[exit=1]
+
+===== [2/3] UNINSTALL (real) =====
+2026-09-20T04:16:08.07898111Z	INFO	Scanner starting	{"version": "dev", "environment": "dev", "command": "onyx-scanner kimi-hooks-uninstall", "trigger_method": "", "invocation_source": "", "executable": "/home/coder/.kimi/onyx/onyx-scanner", "pid": 13130, "ppid": 13119, "username": "coder", "user_id": "1001", "group_id": "1001", "euid": 1001, "home_dir": "/home/coder", "hostname": "ip-10-10-6-62", "os": "linux", "platform": "ubuntu", "platform_family": "debian", "os_version": "22.04", "kernel_version": "6.8.0-1063-aws", "kernel_arch": "x86_64", "architecture": "amd64", "go_version": "go1.26.6", "working_dir": "/home/coder/onyx"}
+2026-09-20T04:16:08.079046191Z	INFO	Starting Kimi hooks uninstallation
+2026-09-20T04:16:08.079052617Z	INFO	Uninstalling Kimi hooks
+2026-09-20T04:16:08.079058002Z	INFO	Starting Kimi hooks uninstallation	{"dry_run": false}
+📊 Uninstallation summary:
+hooks_file: /home/coder/.kimi/config.toml
+✅ Kimi hooks uninstalled successfully!
+   Onyx hooks removed; non-Onyx hooks and your Kimi config were preserved.
+   Restart Kimi to apply changes.
+2026-09-20T04:16:08.079430578Z	INFO	Kimi hooks uninstall command completed successfully
+[exit=0]
+-- config.toml hooks after uninstall: 0
+0 --
+
+===== [3/3] INSTALL (real, restores guarded state) =====
+/bin/bash: line 30: /home/coder/.kimi/onyx/onyx-scanner: No such file or directory
+[exit=127]
+-- config.toml hooks after install: 0
+0 --
+
+===== [3/3 corrected] INSTALL (real, HEAD binary /tmp/onyx-scanner-pr, dev key) =====
+# note: uninstall [2/3] removed the copied sidecar binary (install step 5 reversed), so install is driven from the source build
+2026-09-20T04:16:28.381115457Z	INFO	Scanner starting	{"version": "dev", "environment": "dev", "command": "onyx-scanner kimi-hooks-install", "trigger_method": "", "invocation_source": "", "executable": "/tmp/onyx-scanner-pr", "pid": 13558, "ppid": 13556, "username": "coder", "user_id": "1001", "group_id": "1001", "euid": 1001, "home_dir": "/home/coder", "hostname": "ip-10-10-6-62", "os": "linux", "platform": "ubuntu", "platform_family": "debian", "os_version": "22.04", "kernel_version": "6.8.0-1063-aws", "kernel_arch": "x86_64", "architecture": "amd64", "go_version": "go1.26.6", "working_dir": "/home/coder/onyx"}
+2026-09-20T04:16:28.381220917Z	INFO	Starting Kimi hooks installation
+2026-09-20T04:16:28.382174254Z	INFO	install_context	{"event": "install_context", "cycle_id": "2c8139e6", "caller": "kimi_hooks", "platform": "linux", "parent_process_name": "bash", "parent_pid": 13556, "euid": 1001, "is_privileged_context": false, "active_console_sessions": 0}
+2026-09-20T04:16:28.382204141Z	INFO	Installing Kimi hooks
+2026-09-20T04:16:28.382213129Z	INFO	Starting Kimi hooks installation	{"dry_run": false}
+2026-09-20T04:16:28.441998019Z	WARN	keychain_outcome	{"event": "keychain_outcome", "op": "put", "outcome": "fallback_env", "reason": "keychain_unavailable", "caller": "kimi_hooks", "cycle_id": "ca8df9f6", "platform": "linux", "target_home_set": true, "target_home_tail": "coder", "target_index": 0, "total_targets": 1, "error": "exec: \"dbus-launch\": executable file not found in $PATH"}
+2026-09-20T04:16:28.442358704Z	INFO	Kimi hooks installed successfully
+📊 Installation summary:
+hooks_file: /home/coder/.kimi/config.toml
+file_existed: true
+hooks_added: 1
+  - UserPromptSubmit: Onyx AI Guard prompt evaluation
+  - PreToolUse (all tools): Onyx AI Guard tool-execution evaluation
+  - PostToolUse (all tools): Onyx AI Guard tool-result audit
+✅ Kimi hooks installed successfully!
+   Restart Kimi to apply changes.
+2026-09-20T04:16:28.442380986Z	INFO	Kimi hooks install command completed successfully
+[exit=0]
+-- config.toml [[hooks]] count after install: 3 --
+-- sidecar binary restored: 39705274 /home/coder/.kimi/onyx/onyx-scanner --
+-- onyx-config.json present: yes --
