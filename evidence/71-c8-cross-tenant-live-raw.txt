@@ -1,0 +1,68 @@
+================ A19  key=rAovyftXeE...  path=/kimi_cli/ctxA19 ================
+request_body_decoded={"session_id": "c8-A19-1790081467", "hook_event_name": "UserPromptSubmit", "cwd": "/tmp", "prompt": "cross-tenant isolation probe; references tenant-A Kimi asset id 95 and firewall policy id 20"}
+response={"action":"allow"}
+HTTP=200
+kong_consumer_hdrs:
+X-Kong-Upstream-Latency: 48
+X-Kong-Proxy-Latency: 1
+X-Kong-Request-Id: e1ac3627417c3914adbf2145ec897a31
+
+================ A20  key=kimiXtenan...  path=/kimi_cli/ctxA20 ================
+request_body_decoded={"session_id": "c8-A20-1790081469", "hook_event_name": "UserPromptSubmit", "cwd": "/tmp", "prompt": "cross-tenant isolation probe; references tenant-A Kimi asset id 95 and firewall policy id 20"}
+response={"action":"allow"}
+HTTP=200
+kong_consumer_hdrs:
+X-Kong-Upstream-Latency: 18
+X-Kong-Proxy-Latency: 7
+X-Kong-Request-Id: d069d81b9f94f251bd290a69833e9171
+
+================ B19  key=kimiXtenan...  path=/kimi_cli/ctxB19 ================
+request_body_decoded={"session_id": "c8-B19-1790081471", "hook_event_name": "UserPromptSubmit", "cwd": "/tmp", "prompt": "cross-tenant isolation probe; references tenant-A Kimi asset id 95 and firewall policy id 20"}
+response={"action":"allow"}
+HTTP=200
+kong_consumer_hdrs:
+X-Kong-Upstream-Latency: 20
+X-Kong-Proxy-Latency: 2
+X-Kong-Request-Id: c41b987daa0bbf37142be4766fe9636a
+
+================ B20  key=kimiXtenan...  path=/kimi_cli/ctxB20 ================
+request_body_decoded={"session_id": "c8-B20-1790081473", "hook_event_name": "UserPromptSubmit", "cwd": "/tmp", "prompt": "cross-tenant isolation probe; references tenant-A Kimi asset id 95 and firewall policy id 20"}
+response={"action":"allow"}
+HTTP=200
+kong_consumer_hdrs:
+X-Kong-Upstream-Latency: 14
+X-Kong-Proxy-Latency: 7
+X-Kong-Request-Id: 221a781f3b9eb16f89257a1780baa930
+
+
+############ BEHAVIORAL CONTRAST: identical prompt-injection payload, @app@20 principal ############
+==== INJECT A20 session=c8inj-A20-1790081536 ====
+response={"action":"allow"}
+HTTP=200
+
+==== INJECT B20 session=c8inj-B20-1790081536 ====
+response={"action":"allow"}
+HTTP=200
+
+
+############ CORRELATED SANITIZATION LOG EXCERPTS (tenant resolution + plan + alert) ############
+---- ctxA19 trace 147d70799ae439607719da715be38caf ----
+2026-09-22T12:51:07.561428Z [info     ] Kong auth resolved a disabled policy, falling through to policy engine [sanitization_service.api.dependencies.execution_plan_for_source] filename=execution_plan_for_source.py func_name=get_execution_plan lineno=198 policy_id=19 span_id=8b132b02f5fee06f tenant_id=61750f27-8fbd-42a4-80cf-4191cfb2371a tenant_name='Onyx Security' tenant_schema=onyx_security trace_flags=01 trace_id=147d70799ae439607719da715be38caf
+2026-09-22T12:51:07.563003Z [info     ] No execution plan available    [sanitization_service.api.dependencies.execution_plan_for_source] filename=execution_plan_for_source.py func_name=get_execution_plan has_client_info=True lineno=273 source=kimi_cli span_id=8b132b02f5fee06f tenant_id=61750f27-8fbd-42a4-80cf-4191cfb2371a tenant_name='Onyx Security' tenant_schema=onyx_security tenant_uuid=UUID('61750f27-8fbd-42a4-80cf-4191cfb2371a') trace_flags=01 trace_id=147d70799ae439607719da715be38caf
+2026-09-22T12:51:07.564981Z [info     ] Evaluate request received      [sanitization_service.api.routes.evaluate] filename=evaluate.py func_name=evaluate integration_mode=None lineno=1490 source=kimi_cli span_id=4fb8ad162b00f79d tenant_id=61750f27-8fbd-42a4-80cf-4191cfb2371a tenant_name='Onyx Security' tenant_schema=onyx_security tenant_uuid=UUID('61750f27-8fbd-42a4-80cf-4191cfb2371a') trace_flags=01 trace_id=147d70799ae439607719da715be38caf
+2026-09-22T12:51:07.565661Z [info     ] Outgoing response              [common_core.middleware.request_logging] duration_seconds=0.0461 filename=request_logging.py func_name=log_requests lineno=34 method=POST path=/api/sanitization/v1/guard/evaluate/kimi_cli/ctxA19 span_id=4fb8ad162b00f79d status_code=200 trace_flags=01 trace_id=147d70799ae439607719da715be38caf
+---- ctxA20 trace f6d919d3e0036d8af6db0e87424c1e60 ----
+2026-09-22T12:51:09.738484Z [info     ] Evaluate request received      [sanitization_service.api.routes.evaluate] filename=evaluate.py func_name=evaluate integration_mode=None lineno=1490 source=kimi_cli span_id=183d554972a19334 tenant_id=61750f27-8fbd-42a4-80cf-4191cfb2371a tenant_name='Onyx Security' tenant_schema=onyx_security tenant_uuid=UUID('61750f27-8fbd-42a4-80cf-4191cfb2371a') trace_flags=01 trace_id=f6d919d3e0036d8af6db0e87424c1e60
+2026-09-22T12:51:09.743954Z [info     ] Outgoing response              [common_core.middleware.request_logging] duration_seconds=0.0162 filename=request_logging.py func_name=log_requests lineno=34 method=POST path=/api/sanitization/v1/guard/evaluate/kimi_cli/ctxA20 span_id=183d554972a19334 status_code=200 trace_flags=01 trace_id=f6d919d3e0036d8af6db0e87424c1e60
+---- ctxB19 trace e160ce60d7b4cd78ba66c582eb4fa574 ----
+2026-09-22T12:51:11.918567Z [info     ] No execution plan available    [sanitization_service.api.dependencies.execution_plan_for_source] filename=execution_plan_for_source.py func_name=get_execution_plan has_client_info=True lineno=273 source=kimi_cli span_id=4f41644d288f8a37 tenant_id=ee4c04e0-da52-474e-a80b-e3c2e384ee43 tenant_name='Kimi Diff Scanner' tenant_schema=kimi_diff_scanner tenant_uuid=UUID('ee4c04e0-da52-474e-a80b-e3c2e384ee43') trace_flags=01 trace_id=e160ce60d7b4cd78ba66c582eb4fa574
+2026-09-22T12:51:11.921089Z [info     ] Outgoing response              [common_core.middleware.request_logging] duration_seconds=0.0186 filename=request_logging.py func_name=log_requests lineno=34 method=POST path=/api/sanitization/v1/guard/evaluate/kimi_cli/ctxB19 span_id=61dbee37cbe53ec0 status_code=200 trace_flags=01 trace_id=e160ce60d7b4cd78ba66c582eb4fa574
+---- ctxB20 trace b019ed1d0a0826c9776e0094e99c96bb ----
+2026-09-22T12:51:14.092476Z [info     ] No execution plan available    [sanitization_service.api.dependencies.execution_plan_for_source] filename=execution_plan_for_source.py func_name=get_execution_plan has_client_info=True lineno=273 source=kimi_cli span_id=fe18afad96874fb6 tenant_id=ee4c04e0-da52-474e-a80b-e3c2e384ee43 tenant_name='Kimi Diff Scanner' tenant_schema=kimi_diff_scanner tenant_uuid=UUID('ee4c04e0-da52-474e-a80b-e3c2e384ee43') trace_flags=01 trace_id=b019ed1d0a0826c9776e0094e99c96bb
+2026-09-22T12:51:14.094921Z [info     ] Outgoing response              [common_core.middleware.request_logging] duration_seconds=0.0126 filename=request_logging.py func_name=log_requests lineno=34 method=POST path=/api/sanitization/v1/guard/evaluate/kimi_cli/ctxB20 span_id=0b3f1f886ecca8af status_code=200 trace_flags=01 trace_id=b019ed1d0a0826c9776e0094e99c96bb
+---- injA20 trace 64a55ba5a5899acbd1ddc2c38cf9b79a (plan+alert) ----
+2026-09-22T12:52:16.489122Z [info     ] Evaluate request received      [sanitization_service.api.routes.evaluate] filename=evaluate.py func_name=evaluate integration_mode=None lineno=1490 source=kimi_cli span_id=79e043d7616f30e9 tenant_id=61750f27-8fbd-42a4-80cf-4191cfb2371a tenant_name='Onyx Security' tenant_schema=onyx_security tenant_uuid=UUID('61750f27-8fbd-42a4-80cf-4191cfb2371a') trace_flags=01 trace_id=64a55ba5a5899acbd1ddc2c38cf9b79a
+2026-09-22T12:52:16.493707Z [info     ] Prompt scanning completed      [sanitization_service.api.common.scanning] block_scans_detached=False elapsed_time_seconds=0.003843 filename=scanning.py func_name=scan_prompt_parallel lineno=1874 scores={'CustomScannerManager_kimi-deny-probe-rule_b99f0a8a-0281-4995-b7b1-543ddc8662e7': 0.0} session_id=c8inj-A20-1790081536 span_id=371d34521abf6853 tenant_id=61750f27-8fbd-42a4-80cf-4191cfb2371a tenant_name='Onyx Security' tenant_schema=onyx_security tool_execution_redactions_count=0 total_redactions=0 total_scanners=1 total_violations=0 trace_flags=01 trace_id=64a55ba5a5899acbd1ddc2c38cf9b79a
+2026-09-22T12:52:16.512330Z [info     ] Published alert to queue       [sanitization_service.api.dependencies.alerts_tasks] correlation_id=dc302255-8e04-4b28-92ff-3780b5763610 enqueued_at_ms=1790081536507 filename=alerts_tasks.py func_name=_publish_to_queue lineno=73 policy_id=20 session_id=320 span_id=79e043d7616f30e9 stage=queue_publish tenant_id=61750f27-8fbd-42a4-80cf-4191cfb2371a tenant_name='Onyx Security' tenant_schema=onyx_security trace_flags=01 trace_id=64a55ba5a5899acbd1ddc2c38cf9b79a
+---- injB20 trace 92bc2243afe09e4e5818c1f63aab743d (no plan) ----
+2026-09-22T12:52:19.666078Z [info     ] No execution plan available    [sanitization_service.api.dependencies.execution_plan_for_source] filename=execution_plan_for_source.py func_name=get_execution_plan has_client_info=True lineno=273 source=kimi_cli span_id=afb45fad9e2b7335 tenant_id=ee4c04e0-da52-474e-a80b-e3c2e384ee43 tenant_name='Kimi Diff Scanner' tenant_schema=kimi_diff_scanner tenant_uuid=UUID('ee4c04e0-da52-474e-a80b-e3c2e384ee43') trace_flags=01 trace_id=92bc2243afe09e4e5818c1f63aab743d
