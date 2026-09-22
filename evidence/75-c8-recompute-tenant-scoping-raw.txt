@@ -1,0 +1,50 @@
+C8 — recompute tenant-scoping: verified source citations
+Captured 2026-09-22 on branch factory-eval-v32/PRDCT-14240 HEAD (post main-merge), real repo reads.
+
+=== 1. Caller identity -> tenant (no request-supplied schema anywhere) ===
+backend_python/src/common_core/api/auth.py
+  306: async def get_tenant_uuid(request, auth_method, x_consumer_username=..., authorization=..., azure_tenant_id=...) -> TenantUUID
+       """Extract tenant UUID from authentication information."""  # JWT bearer / Kong consumer / Entra — the CALLER's own token
+  533: CurrentTenantUUID = Annotated[TenantUUID, Depends(get_tenant_uuid)]
+  531: CurrentJwtAuth   = Annotated[JwtAuthInfo, Depends(get_jwt_auth_info)]
+
+backend_python/src/common_core/api/tenant.py
+  72: async def get_current_tenant(tenant_uuid: CurrentTenantUUID, engine: DBEngine) -> Tenant
+  82:     tenant = await _get_tenant_cached(tenant_uuid, engine)
+  87: CurrentTenant = Annotated[Tenant, Depends(get_current_tenant)]
+  90: async def get_authenticated_session_with_deps(engine: DBEngine, tenant: CurrentTenant):
+  94:     session_maker = get_authenticated_db_session_maker(engine, tenant.schema_name)   # request session bound to CALLER schema
+  99: AuthenticatedDBSession = Annotated[AuthenticatedAsyncSession, Depends(get_authenticated_session_with_deps)]
+
+backend_python/src/common/database/engine.py
+  183: def get_authenticated_db_session_maker(engine: AsyncEngine, tenant_schema_name: str) -> AuthenticatedAsyncSessionMaker
+
+=== 2. bulk_update_access_control_rules — selection is caller-scoped ===
+backend_python/src/crud_service/api/routes/access_control.py
+  161: async def bulk_update_access_control_rules(request, jwt_auth: CurrentJwtAuth, db_session: AuthenticatedDBSession,
+  164:     ..., tenant: CurrentTenant, engine: DBEngine, temporal_client: ..., background_tasks: BackgroundTasks)
+  181:     asset_types = await get_asset_types_by_app_definition_ids(db_session, app_def_ids)   # caller's session
+  340:     changed_agent_app_def_ids = sorted({
+  342:         result.app_definition_id for result in results
+  344:         if result.success and asset_types.get(result.app_definition_id) != AssetType.MCP
+  345:         if (asset := assets_by_app_def_id.get(result.app_definition_id)) is not None   # must exist in CALLER schema
+  346:         if asset.type == AssetType.DESKTOP_AGENT or (asset.type==HOMEGROWN and sub_type==AI_AGENT)
+  348:     })
+       -> an app-definition id from another tenant resolves to None in this session and is dropped here.
+
+=== 3. bulk_update — recompute dispatch carries the caller tenant ===
+  349:     await db_session.commit()
+  352:     if unsanctioned_asset_ids: background_tasks.add_task(_recalc_issues_after_sanction_change, temporal_client, tenant, engine, unsanctioned_asset_ids)
+  358:     if changed_agent_app_def_ids: background_tasks.add_task(_recompute_agent_issues_after_sanction_change, temporal_client, tenant, engine, changed_agent_app_def_ids)
+  360:     if reviewed_mcp_asset_ids: background_tasks.add_task(_recalc_risk_after_review_change, temporal_client, tenant, reviewed_mcp_asset_ids)
+       -> every recompute takes the SAME `tenant` (CurrentTenant = caller JWT). No target-schema arg from the request.
+
+=== 4. the agent recompute executes in the caller schema ===
+backend_python/src/crud_service/api/routes/access_control.py
+  826: async def _recompute_agent_issues_after_sanction_change(temporal_client, tenant: Tenant, engine, app_definition_ids)
+  865:     scope_app_def_ids = sorted(set(app_definition_ids))
+  866:     session_maker = get_authenticated_db_session_maker(engine, tenant.schema_name)   # CALLER schema; batched issue-detection start_workflow runs here
+  (the MCP-side sibling at :783 uses the identical get_authenticated_db_session_maker(engine, tenant.schema_name))
+
+CONCLUSION: selection (2) and execution (4) are both bound to tenant.schema_name, derived only from
+the caller's auth token (1). A tenant-B bulk_update cannot name or recompute anything in tenant A.
