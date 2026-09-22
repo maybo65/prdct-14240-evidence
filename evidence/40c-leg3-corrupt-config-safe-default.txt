@@ -1,0 +1,13 @@
+LEG 3 — Unreadable config.toml (chmod 000) -> safe default isGuarded=false
+HEAD 16322b883c48e0a836b16eddea6a175442cfbd82  |  captured 2026-09-20 (UTC)
+Setup: chmod 000 /home/coder/.kimi/config.toml; scan; perms restored to 0600 after.
+
+== agent_detection (raw scanner stdout) ==
+2026-09-20T03:46:09.346882613Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/coder/.kimi", "username": "coder"}
+== detection payload fields (codingAgent) ==
+{"configPath": "/home/coder/.kimi", "configExists": true, "isGuarded": false, "installEvidenceType": "dsl_dir", "installEvidencePath": "/home/coder/.kimi", "mcpServers": ["e2e-filesystem"], "username": "coder"}
+
+OUTCOME: configExists=true but isGuarded=FALSE. Read error -> guard.go HooksFileGuards
+returns false (safe side): asset reported UNGUARDED/needs-attention, never falsely 'guarded'.
+Current perms (restored):
+-rw------- 1 coder coder 2622 Sep 20 03:47 /home/coder/.kimi/config.toml
