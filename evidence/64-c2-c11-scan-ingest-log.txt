@@ -1,0 +1,24 @@
+# C2/C11 — real front-door scanner ingest (branch binary → Kong → branch worker)
+# Captured 2026-09-22 UTC. Scanner binary = freshly built from branch HEAD fce925c99b (bin/onyx-scanner, 09:18).
+# Ingest endpoint = Kong route /mcp-scanner via svc/onyx-onyxd-platform-gateway-proxy (pf 127.0.0.1:8080),
+# Host: ingest-onyx.onyxd.svc.cluster.local (per /etc/hosts). Key-auth = seeded dev 'ingestion' consumer (tilt/infra.star:1108).
+
+## Kong front-door auth is REAL and enforced (not bypassed)
+$ curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Host: ingest-onyx.onyxd.svc.cluster.local' http://127.0.0.1:8080/mcp-scanner
+  no key        -> 401 (401 = auth enforced)
+  ingestion key -> 200 (200 = accepted)
+
+## INGEST #1 — scan log key lines (09:19:36 UTC)
+  2026-09-22T09:19:36.929718448Z	INFO	Scanner starting	{"version": "dev", "environment": "dev", "command": "onyx-scanner scan", "trigger_method": "", "invocation_source": "", "executable": "/home/coder/onyx/scanner/bin/onyx-scanner", "pid": 3668398, "ppid": 3668397, "username": "coder", "user_id": "1001", "group_id": "1001", "euid": 1001, "home_dir": "/home/coder", "hostname": "ip-10-10-6-62", "os": "linux", "platform": "ubuntu", "platform_family": "debian", "os_version": "22.04", "kernel_version": "6.8.0-1063-aws", "kernel_arch": "x86_64", "architecture": "amd64", "go_version": "go1.26.6", "working_dir": "/home/coder/onyx/scanner"}
+  2026-09-22T09:19:36.929874793Z	INFO	Agent detection mode resolved	{"event": "dsl_detection_mode", "mode": "dsl", "agents": "claude-code,codex", "decided_by": "flag", "value": "true", "env": "ONYX_SCANNER_DSL_ENABLED", "flag": "--dsl-enabled"}
+  2026-09-22T09:19:38.045429146Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/coder/.kimi", "username": "coder"}
+  2026-09-22T09:19:41.949461396Z	INFO	Scan run completed	{"payloads_sent": 3, "users": 1, "agents_detected_total": 3, "mcp_servers_total": 3, "projects_total": 0, "skills_total": 51, "duration_ms": 4936, "scan_run_id": "d75d2892-c26d-4bfa-aa46-0c8bebeda6c9"}
+
+## INGEST #2 — scan log key lines (09:22:48 UTC)
+  2026-09-22T09:22:48.518507235Z	INFO	Agent detection mode resolved	{"event": "dsl_detection_mode", "mode": "dsl", "agents": "claude-code,codex", "decided_by": "flag", "value": "true", "env": "ONYX_SCANNER_DSL_ENABLED", "flag": "--dsl-enabled"}
+  2026-09-22T09:22:49.631867271Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/coder/.kimi", "username": "coder"}
+  2026-09-22T09:22:53.559289604Z	INFO	Scan run completed	{"payloads_sent": 3, "users": 1, "agents_detected_total": 3, "mcp_servers_total": 3, "projects_total": 0, "skills_total": 51, "duration_ms": 4956, "scan_run_id": "49c21f12-1446-4ddf-92d5-cf2717415e5c"}
+
+## Scanner payload posted for kimi-cli (from --output-file dump, same binary/flags)
+   record type=request method=scan source_type=mcp-scanner id=scanner-agent-kimi-cli-<uuid>
+   data.codingAgent.name = 'kimi-cli'; configPath=/home/coder/.kimi; builtinTools = (NONE in payload — derived server-side by the worker)

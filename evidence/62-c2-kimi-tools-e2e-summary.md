@@ -35,9 +35,19 @@ All nine hang off asset **95 = "Kimi CLI (coder)"**, type `AssetTypeDesktopAgent
    is running the branch source, not a stale `.pyc` or the baked layer. `get_builtin_tools_for_agent('kimi-cli')`
    in that interpreter returns exactly the nine tools above.
 2. **Real front-door ingest** posted the Kimi CLI desktop agent asset; the branch worker's
-   DesktopAgentCreator derived its builtin tools and wrote the nine rows at **08:47:01 today**.
-3. **DB proof** (`60-c2-kimi-tools-live-db.txt`): the nine rows exist with `is_active=t`, freshly
-   dated, external_ids = `builtin:kimi-cli:<Fn>` from `generate_builtin_tool_external_id("kimi-cli", fn)`.
+   DesktopAgentCreator derived its builtin tools and wrote the nine rows.
+   > **Provenance correction (read `67-c2-c11-frontdoor-repro-summary.md`).** When this file was
+   > first written I dated the write "08:47:01 today", but the only clean scan log I had captured
+   > (`scan_full.log`) had run in **legacy** DSL mode 31 s later and did **not** actually attribute
+   > that write — so the causal claim was over-stated. It is now replaced by a clean, fully-logged
+   > reproduction (files 64/65/66): a fresh branch-built scanner posting through Kong (401→200) →
+   > branch worker `DesktopAgentCreatorScannerChunkWorkflow` logging
+   > `agent_name=kimi-cli asset_id=95 tools_created=9` at **09:20:00** and again at **09:24:00** →
+   > the nine DB rows (ids 21–29). The `08:47:01` timestamp on the rows below is simply the FIRST
+   > write; the re-ingest is an idempotent no-op upsert (why `updated_at` does not advance), which
+   > doubles as the C11 proof. Treat file 67 as the authoritative write attribution.
+3. **DB proof** (`60-c2-kimi-tools-live-db.txt`): the nine rows exist with `is_active=t`,
+   external_ids = `builtin:kimi-cli:<Fn>` from `generate_builtin_tool_external_id("kimi-cli", fn)`.
 
 ## Honest caveats (nothing dressed up)
 - **14 rows total, not 9.** Alongside the nine fresh Kimi-own rows sit **5 legacy codex-style rows**
