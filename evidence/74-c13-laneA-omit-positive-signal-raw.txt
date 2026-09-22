@@ -1,0 +1,79 @@
+C13 lane A — agent-absent (kimi-omitted) rescan: verbatim capture
+Captured 2026-09-22 on branch factory-eval-v32/PRDCT-14240, real deployed scanner worker + real Postgres.
+
+=== 0. Worker health (real deployed pod) ===
+$ kubectl -n onyxd get pods | grep scanner-worker
+temporal-scanner-worker-85b776b68d-zppnl   1/1   Running   6 (5h4m ago)   5d21h
+
+=== 1. Payload rebuilt kimi-absent from the real scan /tmp/kimi_payload.jsonl (5 records) ===
+Source record map (full scan):
+  L1: id=scanner-agent-kimi-cli-a236394c-...   method=scan        codingAgent.name='kimi-cli'
+  L2: id=scanner-agent-claude-code-8332781d-...method=scan        codingAgent.name='claude-code'
+  L3: id=scanner-agent-codex-64f0b94c-...      method=scan        codingAgent.name='codex'
+  L4: id=scanner-summary-798d72b3-...          method=scan_summary users.agents=[kimi-cli,claude-code,codex] guardAggregate=[kimi-cli,claude-code,codex]
+  L5: id=scanner-logs-787e025a-...             method=scan_logs    (debug text)
+
+Rebuild (drop kimi codingAgent record + scrub summary):
+  dropped codingAgent lines: ['scanner-agent-kimi-cli-a236394c-e5fd-4088-af3e-9425e3887d90']
+  scrubbed summary kimi refs: 2
+Result map (kimi-absent payload):
+  L1: codingAgent='claude-code'
+  L2: codingAgent='codex'
+  L3: users.agents=['claude-code','codex'] | guardAgg=['claude-code','codex']
+  L4: logs/str
+
+=== 2. Driver run (run4) — verbatim key lines (TMPRL1103 payload-size warnings elided) ===
+================================================================================
+C13 lane A (DEPLOYED Temporal scanner worker) — REAL kimi ingest
+captured: 2026-09-22T13:54:05.312546+00:00
+tenant  : ee4c04e0-... (id=2) -> schema kimi_diff_scanner
+queue   : scanner   workflow: DesktopAgentCreatorScannerChunkWorkflow
+================================================================================
+2026-09-22 13:54:05 [info] discarding scanner subagents — scannerSubagentsIngestEnabled is off for tenant agent_name=claude-code discarded_subagents=4
+2026-09-22 13:54:05 [info] install evidence dropped: no evidence class named ... asset_name=codex ...
+extracted 2 desktop agents (SAME as lane B):
+  - app_name=claude-code tools=None mcp_servers=5
+  - app_name=codex tools=None mcp_servers=0
+2026-09-22 13:54:05 [info] Connecting to Temporal address=127.0.0.1:7244 namespace=default
+2026-09-22 13:54:05 [info] Temporal client connected successfully
+>>> start_workflow id=c13-laneA-nokimi-19bc9e91-ccb3-4a70-acb5-3da6bbe8a1b9
+>>> awaiting result (bounded 150s) ...
+=== still running after 150s; status=1 id=c13-laneA-nokimi-19bc9e91-ccb3-4a70-acb5-3da6bbe8a1b9 ===
+DONE
+
+Follow-up describe (bounded 40s):  status: 1   (WorkflowExecutionStatus=RUNNING; long-running orchestration; per-agent writes already committed)
+
+=== 3. BEFORE-2 baseline (2026-09-22T13:53:45Z) — psql -h127.0.0.1 -p5433 -U postgres, schema kimi_diff_scanner ===
+agent|2|Claude Code (coder)|asset_upd=2026-09-22 10:35:01.018126+00|scanned=2026-09-22 13:51:10.294691+00
+agent|3|Codex (coder)|asset_upd=2026-09-22 10:35:01.548395+00|scanned=2026-09-22 13:51:10.276876+00
+agent|1|Kimi CLI (coder)|asset_upd=2026-09-22 10:35:00.996736+00|scanned=2026-09-22 13:49:40.551635+00
+kimi_tools|count=9|active=9|max_upd=2026-09-22 10:35:01.68436+00
+kimi_asset|is_deleted=false|updated_at=2026-09-22 10:35:00.996736+00
+kimi_daa|guard=true|scanned=2026-09-22 13:49:40.551635+00
+
+=== 4. AFTER-2 (2026-09-22T13:56:49Z) — same queries ===
+agent|2|Claude Code (coder)|asset_upd=2026-09-22 10:35:01.018126+00|scanned=2026-09-22 13:54:05.596848+00
+agent|3|Codex (coder)|asset_upd=2026-09-22 10:35:01.548395+00|scanned=2026-09-22 13:54:05.586771+00
+agent|1|Kimi CLI (coder)|asset_upd=2026-09-22 10:35:00.996736+00|scanned=2026-09-22 13:49:40.551635+00
+kimi_tools|count=9|active=9|max_upd=2026-09-22 10:35:01.68436+00
+kimi_asset|is_deleted=false|updated_at=2026-09-22 10:35:00.996736+00
+kimi_daa|guard=true|scanned=2026-09-22 13:49:40.551635+00
+
+=== 5. Diff ===
+claude-code daa.last_scanned_at: 13:51:10.294691 -> 13:54:05.596848   ADVANCED (positive signal)
+codex       daa.last_scanned_at: 13:51:10.276876 -> 13:54:05.586771   ADVANCED (positive signal)
+kimi asset  is_deleted:          false -> false                        UNCHANGED
+kimi asset  updated_at:          10:35:00.996736 -> 10:35:00.996736    UNCHANGED
+kimi tools  count|active:        9|9 -> 9|9                            UNCHANGED (all is_active=true)
+kimi tools  max(updated_at):     10:35:01.68436 -> 10:35:01.68436      UNCHANGED
+kimi daa    last_scanned_at:     13:49:40.551635 -> 13:49:40.551635    UNCHANGED
+kimi daa    last_guard_status:   true -> true                          UNCHANGED
+
+Queries used:
+  select a.id,a.name,a.updated_at,daa.last_scanned_at,daa.last_guard_status
+    from kimi_diff_scanner.assets a
+    left join kimi_diff_scanner.desktop_agent_applications daa on daa.asset_id=a.id
+    where a.type='AssetTypeDesktopAgent' order by a.name;
+  select count(*), count(*) filter(where is_active), max(updated_at) from kimi_diff_scanner.tools where asset_id=1;
+  select is_deleted, updated_at from kimi_diff_scanner.assets where id=1;
+  select last_guard_status, last_scanned_at from kimi_diff_scanner.desktop_agent_applications where asset_id=1;
