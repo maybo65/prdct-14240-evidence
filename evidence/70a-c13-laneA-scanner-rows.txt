@@ -1,0 +1,45 @@
+C13 lane A — DEPLOYED Temporal scanner worker (DesktopAgentCreatorScannerChunkWorkflow, task_queue=scanner)
+captured_at: 2026-09-22T10:49:42Z  |  tenant kimi_diff_scanner (id=2, uuid ee4c04e0-da52-474e-a80b-e3c2e384ee43)
+workflow id: c13-laneA-kimi-d3d9c1e2-466e-4e03-86f1-775f1df214cb
+note: write activities (process_single_agent -> create_builtin_tools) committed the rows below;
+      parent workflow was still status=Running at capture (downstream orchestration) — orthogonal to the diffed write rows.
+================================================================
+SET
+-- asset (kimi) --
+ id |       name       |         type          |      sub_type       |                  unique_identifier                  
+----+------------------+-----------------------+---------------------+-----------------------------------------------------
+  1 | Kimi CLI (coder) | AssetTypeDesktopAgent | AssetSubTypeAIAgent | endpoint_kimi-cli::ec2f0fe614763f6d5bf528f0dc29322c
+(1 row)
+
+-- 9 builtin tools on kimi asset --
+           external_id           |      name      | is_active 
+---------------------------------+----------------+-----------
+ builtin:kimi-cli:FetchURL       | FetchURL       | t
+ builtin:kimi-cli:Glob           | Glob           | t
+ builtin:kimi-cli:Grep           | Grep           | t
+ builtin:kimi-cli:ReadFile       | ReadFile       | t
+ builtin:kimi-cli:ReadMediaFile  | ReadMediaFile  | t
+ builtin:kimi-cli:SearchWeb      | SearchWeb      | t
+ builtin:kimi-cli:Shell          | Shell          | t
+ builtin:kimi-cli:StrReplaceFile | StrReplaceFile | t
+ builtin:kimi-cli:WriteFile      | WriteFile      | t
+(9 rows)
+
+-- tool breakdown --
+ kimi_tools | codex_named | total 
+------------+-------------+-------
+          9 |           0 |     9
+(1 row)
+
+-- desktop_agent_applications --
+ id | asset_id | last_guard_status 
+----+----------+-------------------
+  1 |        1 | t
+(1 row)
+
+-- channels --
+ id | channel_id | display_name | is_active 
+----+------------+--------------+-----------
+  1 | tui        | Terminal UI  | t
+(1 row)
+

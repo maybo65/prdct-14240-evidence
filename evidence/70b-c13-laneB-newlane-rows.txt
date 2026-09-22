@@ -1,0 +1,48 @@
+C13 lane B — endpoint_asset_ingestion in-process single-writer (ObjectIngestionProcessor.process, service.py:240 scanner else-branch)
+captured_at: 2026-09-22T10:50:01Z  |  tenant kimi_diff_newlane (id=3, uuid ddd1baa8-511f-43ae-b41b-ceec09aa1baa)
+object: s3://ingestion/tenant=ddd1baa8-.../source=mcp-scanner/date=2026-09-22/hour=10/kimi-scan.jsonl (real localstack S3)
+================================================================
+SET
+-- asset (kimi) --
+ id |       name       |         type          |      sub_type       |                  unique_identifier                  
+----+------------------+-----------------------+---------------------+-----------------------------------------------------
+  3 | Kimi CLI (coder) | AssetTypeDesktopAgent | AssetSubTypeAIAgent | endpoint_kimi-cli::ec2f0fe614763f6d5bf528f0dc29322c
+(1 row)
+
+-- 9 builtin tools on kimi asset --
+           external_id           |      name      | is_active 
+---------------------------------+----------------+-----------
+ builtin:kimi-cli:FetchURL       | FetchURL       | t
+ builtin:kimi-cli:Glob           | Glob           | t
+ builtin:kimi-cli:Grep           | Grep           | t
+ builtin:kimi-cli:ReadFile       | ReadFile       | t
+ builtin:kimi-cli:ReadMediaFile  | ReadMediaFile  | t
+ builtin:kimi-cli:SearchWeb      | SearchWeb      | t
+ builtin:kimi-cli:Shell          | Shell          | t
+ builtin:kimi-cli:StrReplaceFile | StrReplaceFile | t
+ builtin:kimi-cli:WriteFile      | WriteFile      | t
+(9 rows)
+
+-- tool breakdown --
+ kimi_tools | codex_named | total 
+------------+-------------+-------
+          9 |           0 |     9
+(1 row)
+
+-- desktop_agent_applications --
+ id | asset_id | last_guard_status 
+----+----------+-------------------
+  3 |        3 | t
+(1 row)
+
+-- channels --
+ id | channel_id | display_name | is_active 
+----+------------+--------------+-----------
+  2 | tui        | Terminal UI  | t
+(1 row)
+
+-- shared public app_definition (both lanes converge) --
+ id  |      app_id       |   name   |   origin    |      sub_type       
+-----+-------------------+----------+-------------+---------------------
+ 540 | endpoint_kimi-cli | Kimi CLI | OriginChina | AssetSubTypeAIAgent
+(1 row)

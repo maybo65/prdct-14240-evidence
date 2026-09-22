@@ -1,0 +1,277 @@
+================================================================================
+C13 lane B (endpoint_asset_ingestion, scanner branch) — REAL kimi ingest
+captured: 2026-09-22T10:37:34.371767+00:00
+object  : s3://ingestion/tenant=ddd1baa8-511f-43ae-b41b-ceec09aa1baa/source=mcp-scanner/date=2026-09-22/hour=10/kimi-scan.jsonl
+tenant  : ddd1baa8-511f-43ae-b41b-ceec09aa1baa -> schema kimi_diff_newlane
+================================================================================
+2026-09-22 10:37:34 [info     ] SQLAlchemy database instrumentation enabled with commenter
+2026-09-22 10:37:34 [debug    ] Using custom credentials for S3 session
+
+>>> processor.process(ref) ...
+2026-09-22 10:37:34 [error    ] Feature flag service not initialized, returning default default=False flag_key=scannerSubagentsIngestEnabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:34 [info     ] discarding scanner subagents — scannerSubagentsIngestEnabled is off for tenant agent_name=claude-code discarded_subagents=4
+2026-09-22 10:37:34 [info     ] install evidence dropped: no evidence class named (residue path not treated as install evidence) asset_kind=coding_agent asset_name=codex dropped_path=/home/coder/.codex/config.toml from_config_path=True
+2026-09-22 10:37:34 [info     ] Detected bridge package        original_spec=mcp-remote package_name=mcp-remote version=None
+2026-09-22 10:37:34 [debug    ] MCP package DB cache hit       cache_key_hash=032d829e26d16b83546a88e7839ff091074f37dedc3f2c07c48eec445d409dfa package_name=@modelcontextprotocol/server-filesystem server_type=stdio version=2026.8.31
+2026-09-22 10:37:34 [debug    ] MCP package DB cache hit       cache_key_hash=1571b184a753cf187fa0fab2ab01cc65af36f5620f0e2d1722614729d757ca5b package_name=mcp.tavily.com/mcp server_type=stdio version=None
+2026-09-22 10:37:34 [debug    ] MCP package DB cache hit       cache_key_hash=c8c2d279a780c53bf9bedb793039d5cb52bdceecf6a5278236f2205d611c13ba package_name=@upstash/context7-mcp server_type=stdio version=4.1.1
+2026-09-22 10:37:34 [error    ] Feature flag service not initialized, returning default default=False flag_key=desktop-agent-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:34 [info     ] Processing single agent        app_name=kimi-cli normalized_app_def_id=endpoint_kimi-cli original_app_def_id=endpoint_kimi-cli source=scanner
+2026-09-22 10:37:34 [info     ] Bulk upserted device source stamps fresh=0 plain=1
+2026-09-22 10:37:34 [info     ] Resolved username              username=coder username_id=1
+2026-09-22 10:37:34 [info     ] Upserted app definition        app_definition_id=540 app_id=endpoint_kimi-cli is_new=False name='Kimi CLI'
+2026-09-22 10:37:34 [info     ] Upserted base application      asset_id=3 name='Kimi CLI (coder)' sub_type=AssetSubTypeAIAgent type=AssetTypeDesktopAgent unique_identifier=endpoint_kimi-cli::ec2f0fe614763f6d5bf528f0dc29322c
+2026-09-22 10:37:34 [info     ] Upserted asset_source          asset_id=3 source=scanner source_id=3
+2026-09-22 10:37:34 [info     ] Upserted device application    asset_id=3 device_application_id=3 device_id=1
+2026-09-22 10:37:34 [info     ] Upserted desktop_agent_application asset_id=3 desktop_agent_application_id=3 last_guard_status=True
+2026-09-22 10:37:34 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:34 [debug    ] Username_asset already exists  asset_id=3 username_asset_id=3 username_id=1
+2026-09-22 10:37:34 [debug    ] New row contained in existing, returning existing asset_id=3 desktop_agent_user_id=3 device_id=1
+2026-09-22 10:37:34 [info     ] Processed single agent successfully asset_id=3 desktop_agent_user_id=3 device_id=1 employee_id=None username_id=1
+2026-09-22 10:37:34 [info     ] ingestion step skipped         reason='legacy inline-asset migration runs inside process_single_agent; a scanner object carries no old-format inline assets' step=legacy_migration
+2026-09-22 10:37:34 [info     ] Creating builtin tools for agent agent_name=kimi-cli asset_id=3 tool_count=9
+2026-09-22 10:37:34 [info     ] Builtin tools creation complete agent_name=kimi-cli asset_id=3 tools_created=9
+2026-09-22 10:37:34 [info     ] ingestion step skipped         reason='no skills in payload' step=skills_upsert
+2026-09-22 10:37:34 [info     ] ingestion step skipped         reason='no subagents in payload' step=subagents_upsert
+2026-09-22 10:37:34 [info     ] Bulk upserted 1 channels
+2026-09-22 10:37:34 [info     ] Fetched active channels        application_id=3 count=1
+2026-09-22 10:37:34 [debug    ] MCP package memory cache hit   cache_key_hash=032d829e26d16b83546a88e7839ff091074f37dedc3f2c07c48eec445d409dfa
+2026-09-22 10:37:34 [info     ] Upserted app definition        app_definition_id=554 app_id=@modelcontextprotocol/server-filesystem is_new=False name='Filesystem MCP Server'
+2026-09-22 10:37:34 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:34 [info     ] Upserted app definition version app_definition_id=@modelcontextprotocol/server-filesystem app_version_id=@modelcontextprotocol/server-filesystem::2026.8.31 is_new=False version_id=15
+2026-09-22 10:37:34 [info     ] Upserted base application      asset_id=68 name='Filesystem MCP Server' sub_type=AssetSubTypeMCPServer type=AssetTypeMCP unique_identifier=@modelcontextprotocol/server-filesystem::2026.8.31
+2026-09-22 10:37:34 [info     ] Bulk upserted device source stamps fresh=0 plain=1
+2026-09-22 10:37:34 [info     ] Upserted device                device_id=1 name=ip-10-10-6-62 platform=linux
+2026-09-22 10:37:34 [info     ] Upserted device application    asset_id=68 device_application_id=5 device_id=1
+2026-09-22 10:37:34 [info     ] Upserted device_application    asset_id=68 device_application_id=5 device_id=1 install_evidence_path=None install_evidence_type=None
+2026-09-22 10:37:34 [info     ] Upserted MCP Gateway installation auth_type=None command=npx current_gw_version=None desktop_agent_user_id=3 installation_id=1 mcp_asset_id=68 resolved_package_status=None
+2026-09-22 10:37:34 [info     ] Replaced MCP installation dependencies installation_id=1 upserted=0
+2026-09-22 10:37:34 [info     ] Upserted MCP Gateway installation via activity auth_type=None command=npx desktop_agent_user_id=3 installation_id=1 mcp_asset_id=68 url=None
+2026-09-22 10:37:34 [info     ] Upserted MCP server            asset_id=68 mcp_server_id=1 server_type=Local source_type=Npm
+2026-09-22 10:37:34 [info     ] Upserted asset_source          asset_id=68 source=scanner source_id=68
+2026-09-22 10:37:34 [info     ] Upserted asset connection      asset_connection_id=64 connection_type=AgentToMcp destination_asset_id=68 source_asset_id=3
+2026-09-22 10:37:34 [debug    ] No app-wide rule or status is Discovered, skipping version-specific rule creation app_definition_id=@modelcontextprotocol/server-filesystem asset_id=68
+2026-09-22 10:37:34 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-config-names tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:34 [info     ] ingestion step skipped         reason='subagent ingest disabled for this tenant — no subagent assets to point at' step=subagent_mcp_edges
+2026-09-22 10:37:34 [info     ] ingestion step skipped         reason='no sessions in payload' step=sessions
+2026-09-22 10:37:34 [info     ] Processing single agent        app_name=claude-code normalized_app_def_id=endpoint_claude-code original_app_def_id=endpoint_claude-code source=scanner
+2026-09-22 10:37:34 [info     ] Bulk upserted device source stamps fresh=0 plain=1
+2026-09-22 10:37:34 [info     ] Resolved username              username=coder username_id=1
+2026-09-22 10:37:34 [info     ] Upserted app definition        app_definition_id=531 app_id=endpoint_claude-code is_new=False name='Claude Code'
+2026-09-22 10:37:34 [info     ] Upserted base application      asset_id=1 name='Claude Code (coder)' sub_type=AssetSubTypeAIAgent type=AssetTypeDesktopAgent unique_identifier=endpoint_claude-code::ec2f0fe614763f6d5bf528f0dc29322c
+2026-09-22 10:37:34 [info     ] Upserted asset_source          asset_id=1 source=scanner source_id=1
+2026-09-22 10:37:34 [info     ] Upserted device application    asset_id=1 device_application_id=1 device_id=1
+2026-09-22 10:37:34 [info     ] Upserted desktop_agent_application asset_id=1 desktop_agent_application_id=1 last_guard_status=None
+2026-09-22 10:37:34 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:34 [debug    ] Username_asset already exists  asset_id=1 username_asset_id=1 username_id=1
+2026-09-22 10:37:34 [debug    ] New row contained in existing, returning existing asset_id=1 desktop_agent_user_id=1 device_id=1
+2026-09-22 10:37:34 [info     ] Processed single agent successfully asset_id=1 desktop_agent_user_id=1 device_id=1 employee_id=None username_id=1
+2026-09-22 10:37:34 [info     ] ingestion step skipped         reason='legacy inline-asset migration runs inside process_single_agent; a scanner object carries no old-format inline assets' step=legacy_migration
+2026-09-22 10:37:34 [info     ] Creating builtin tools for agent agent_name=claude-code asset_id=1 tool_count=10
+2026-09-22 10:37:34 [info     ] Builtin tools creation complete agent_name=claude-code asset_id=1 tools_created=10
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=550021545f2c7231f63d32b926156f1ebcfcde82727170712d4126b933a2f1fc skill_name=agent-phone
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=49872bab457e6bf468d2a37ab4efe34412567ee0287ee0ebb35cc4ca8b73d180 skill_name=ask-smart-model
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=51aa0fc928c611546e2a75b82f8291f8b8f8e2b1c1d7adebfa99573fb1b8b17b skill_name=browser-sso-login
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=6db3b9cb95c240d6842ea9a3698a0ab4a480b0bf5cc80415b0f1603d44beb248 skill_name=build-and-load-extension
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=7c30d17a897622fc7698252b2b113daea2d04c503081ee2a307d22dc375a1bcf skill_name=capture-run-recording
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=255a9d45c246af43e718c7c3bd0d5906854f7b60340a34bbc29e249bc8f548dd skill_name=ci-watch
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=1f08a374ba7475c108f07142bbe63ba8fa8840d1f371ea995c72312985af7dfe skill_name=clickup
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=0f5f1faed4a5b25c75285927c4e1fbf4fea0596ccffad53cdba046e2eec51d55 skill_name=coder-sso-identity
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=dbdbe0dc00b222ee98da81b2ac5b7ab19792413e0e139ad0058eedd9f8b4bc15 skill_name=design-handoff
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=088827fa25920fadf827e43792278814b232a5ee19dd8c33149f1a6debcfa132 skill_name=dev-and-e2e-workflow
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=bce7e675bbb422a9d45bbeb8328cd45b0106f8abb7f6d088f58c478374d5ca8a skill_name=drive-browser
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=8a36e913600b167ab2dd6293da5c31a8da02ede981ad2cfe42f1c2ac9f0c202f skill_name=drive-onyx-forms
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=8b25a4fd311927de26a1eb15ec92c31c5e7cfac8fc298aa2f42a14b709cb210b skill_name=drive-site
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=d252a8eb7ba046c2e78e81844f67701b783fbc10cb241fd32a8afa2dec223ea8 skill_name=e2e-front-door
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=1551c263255fa7a96ee1dfef3fb03d2f90ab96b32d47f8e7f0e1d6c1bcd83284 skill_name=explore-and-clone-org-repos
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=188ce31532ab70cda6ae95591b61b1249f53c83a606af7e9220ec61e590f45df skill_name=external-api-v2
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=125d2bf7cd55c6ac65adfed698e7129cb667f39f2fbe55507ee7b94328c458c9 skill_name=fix-box-env
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=466ad9542e19fc4ce11fa4b8c4f747e55c514bfd92fea8d3cdf794f06caad3f9 skill_name=frontend-reuse
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=6ecae9800dbb06901a3f97f98aefc6c96a10edd611ca3d593c5a97ea0fa51b51 skill_name=github-pr-images
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=ff117c315189677965181be653329795c028161aa3d384c440e0bee09b50a62e skill_name=handle-feedback
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=137a329130cb7af649ca7df7a8e00061170a220e31f2352450942a05b110c2cc skill_name=lab-conventions
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=d2d1da1b7a80671f7e81259a0656a6dcf18df34e08fda529b7ee54509362444a skill_name=lab-machine
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=4b80b365f7f314e8b32b0de0411aff2780777f237e4608719561161fae6217da skill_name=launchdarkly-dev-flags
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=d4eae3860d661ae2ce311215c93ddc29cdfc88dcf5ab1db0b5387de4d7d6b5fc skill_name=local-dev-stack
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=e47fe41f959f2466b6bdb85dd6c3ebb4671c1f3ef4aa7cda737374199a226082 skill_name=mcp-gateway-e2e
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=76a78a601512cac12e03ad53b26079f4a32675bf39a283c9ada6be21784e93fb skill_name=plan-before-implement
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=e3b1f066d14fb3e21e39f5c1992451f4ebfad29343aa5002fdb08ef914c8ba47 skill_name=playwright-cli
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=950576294c13b9dfa85ebeb4e4d903597c7edaa7ed2c385171454fcd1f244499 skill_name=pre-push-validate
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=d1acd051473a8a7fe2b689688fd757fdc05c39d789c9fe2323bad5347e800f9a skill_name=preview-flow-run
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=59ad4fdc73dacf30ac3b46ff516f4c1ba1d3663f70a523206e618a8d0f745082 skill_name=promote-component
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=8fd29212e53a6f08ee2a23d0aff40265a8b158a32a9d8d5b35fc4dc9a38eb2cd skill_name=provision-lab-resources
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=c042e6d9ed439d4a1d5492be4549093703af08c173c8c03f2bd836f6b1a02041 skill_name=python-integrations
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=94bf17cf0aab42c647f027cdcaf4c326bd3cefdd0c2fab72c9291ff85a70531d skill_name=query-database
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=ad86f573be077432cf6bd944d9f928a48af8cec221ec0fdd278b09ba49248f31 skill_name=reconcile-or-escalate-spec
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=78158b28201925b92b5a42de0dd5884ecd05e7647555060f27a4c6424ca8ed3c skill_name=reproduce-prod-baseline
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=1cc30b8f64d735e48e7cc8fc142e9b856c3d420188ea61459ab203ee3dd8c376 skill_name=reuse-check
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=c01ecbcf02f2883fea5261deb8a3d97b0cda94f2e8bb50f5f3f32fe4ff0e0ca9 skill_name=run-artifacts
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=aae3f3b12a49a71e044ce9c989decf7e9831c74f10b5ce7d4719886ffcc13d01 skill_name=scanner-flow-e2e
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=6bb00b513663c326a0f61eb6d347ff06f5d2b5e2085616e526bfc27edbeee8fb skill_name=simulate-agent-traffic
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=d092bc5b5002792576c0b717d419c925a28363abe3b8d937808c62c2f3804f48 skill_name=slack-notify
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=5478a6d0c237e2d2c0f0220c6aaee20644730ce133641567edd4a9a7807667f0 skill_name=slack-research
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=450076121b291e519d753755df7fca680756c3924cd939f5bd3669df4aac5973 skill_name=stack-health
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=b0dc5439cfc1661c0c82a5987f6588e69a4583fb145bb34b78ca9736f37d4e69 skill_name=start-eval-branch
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=a4c143338a61633bdae98feefad18492d2520ac34aee8acc1b8ebc3b668d331f skill_name=temporal-workflows
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=816d2fd111b264c64bb305a941e219fe1d9940213d536b3093cba36900112078 skill_name=testing-standard
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=12ab4ddabc84704857ab3583e9e58989cd0bc6fea39f80526ee881e294098d57 skill_name=tilt-ui-auth
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=b2d7c5c5f5bdf2e4068b3ab28f333df33bd8907700f0e0a354ce9c42cbcbc873 skill_name=use-azure-lab
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=afabcbb8079a56b594057d0a90e3ef98971d94f35b6d77db0478e078531a57ac skill_name=use-gcp-lab
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=b1da75434d8d6a6482aa8b4487f79ac0fe85eb92c7f5689530a4a468f90a38f6 skill_name=verify-and-capture-evidence
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=145b1111125d0aeca3212fe85248e744d3fa50c1e4b1563f9a4cb5dd64f8c625 skill_name=verify-in-product-ui
+2026-09-22 10:37:34 [info     ] Bulk inserted base applications existing=50 inserted=0 total=50
+2026-09-22 10:37:34 [info     ] Bulk inserted agent_skills     existing=50 inserted=0 total=50
+2026-09-22 10:37:34 [info     ] Bulk upserted 50 asset_sources
+2026-09-22 10:37:34 [info     ] Bulk upserted asset_connections count=50
+2026-09-22 10:37:34 [info     ] Bulk merged asset_connection metadata.sources count=0 merges=50
+2026-09-22 10:37:34 [info     ] Bulk upserted asset install evidence count=50
+2026-09-22 10:37:34 [info     ] Bulk upserted skills chunk     extra={'tenant_schema': 'kimi_diff_newlane', 'agent_asset_id': 1, 'skills_created': 50, 'scripts_created': 0, 'connections_created': 50}
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=3d82b24f98ec3cb947072e8f3b0d44572ba2c00b55880fa48cd9e3c419ef19ab skill_name=workstation
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=c2186d6fa87d2f4026b0018e496ac91f8d9d7a75494bffab4f7ebd335b4270fc skill_name=autonomous-workflow
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=2738d8dce500d68bc9c85f9abd83b5017556e10dc96964bff2ac8af25c21900b skill_name=gh-pr-operations
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=72cff11e6c1a953516859ab0b03028cfc3eec565f12b28085a85f14e2a5f6771 skill_name=onyx-docs
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=5966715a2e91daeddf0b374e3a96135b0e8896b2e70f8b6f705f26fca83430a0 skill_name=web-research
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=e897730d257627b0b13b1697384a14361d0c61d4168b299e388a427434906861 skill_name=receive-review
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=050eda75595277c906ca121070263ac47b3a446639978819dc3420d21a019d8f skill_name=simplify-code
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=a398b07fb7cb3d28482f5d2922aee16dd32a09cc969fd2a6f4d2bc1c9d85a4b5 skill_name=optimized-planning
+2026-09-22 10:37:34 [info     ] Skill asset upsert             agent_asset_id=1 skill_dir_hash=6fbea79155a8a15da6fd6e4fd6e9914cce19b5e0089e8fb082716b577603c75c skill_name=verification-before-completion
+2026-09-22 10:37:34 [info     ] Bulk inserted base applications existing=9 inserted=0 total=9
+2026-09-22 10:37:34 [info     ] Bulk inserted agent_skills     existing=9 inserted=0 total=9
+2026-09-22 10:37:34 [info     ] Bulk upserted 9 asset_sources
+2026-09-22 10:37:35 [info     ] Bulk upserted asset_connections count=9
+2026-09-22 10:37:35 [info     ] Bulk merged asset_connection metadata.sources count=0 merges=9
+2026-09-22 10:37:35 [info     ] Bulk upserted asset install evidence count=9
+2026-09-22 10:37:35 [info     ] Bulk upserted skills chunk     extra={'tenant_schema': 'kimi_diff_newlane', 'agent_asset_id': 1, 'skills_created': 9, 'scripts_created': 0, 'connections_created': 9}
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='no subagents in payload' step=subagents_upsert
+2026-09-22 10:37:35 [info     ] Bulk upserted 1 channels
+2026-09-22 10:37:35 [info     ] Fetched active channels        application_id=1 count=1
+2026-09-22 10:37:35 [debug    ] MCP package cache miss         cache_key_hash=d0122f34908904a2ceef70c0637c3f648374ff28e4b7451168bedb1ede10c276
+2026-09-22 10:37:35 [info     ] Upserted app definition        app_definition_id=535 app_id=/opt/coder/coder::ec2f0fe614763f6d5bf528f0dc29322c is_new=False name='Local MCP Server (/opt/coder/coder)'
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Upserted app definition version app_definition_id=/opt/coder/coder::ec2f0fe614763f6d5bf528f0dc29322c app_version_id=/opt/coder/coder::ec2f0fe614763f6d5bf528f0dc29322c::unknown is_new=False version_id=3
+2026-09-22 10:37:35 [info     ] Upserted base application      asset_id=129 name='Local MCP Server (/opt/coder/coder)' sub_type=AssetSubTypeMCPServer type=AssetTypeMCP unique_identifier=/opt/coder/coder::ec2f0fe614763f6d5bf528f0dc29322c::unknown
+2026-09-22 10:37:35 [info     ] Upserted device application    asset_id=129 device_application_id=7 device_id=1
+2026-09-22 10:37:35 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:35 [info     ] Upserted device_application    asset_id=129 device_application_id=7 device_id=1 install_evidence_path=/home/coder/.claude.json install_evidence_type=config_file
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation auth_type=None command=/opt/coder/coder current_gw_version=None desktop_agent_user_id=1 installation_id=2 mcp_asset_id=129 resolved_package_status=resolved
+2026-09-22 10:37:35 [info     ] Replaced MCP installation dependencies installation_id=2 upserted=215
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation via activity auth_type=None command=/opt/coder/coder desktop_agent_user_id=1 installation_id=2 mcp_asset_id=129 url=None
+2026-09-22 10:37:35 [info     ] Upserted MCP server            asset_id=129 mcp_server_id=2 server_type=Local source_type=File
+2026-09-22 10:37:35 [info     ] Upserted asset_source          asset_id=129 source=scanner source_id=129
+2026-09-22 10:37:35 [info     ] Upserted asset connection      asset_connection_id=124 connection_type=AgentToMcp destination_asset_id=129 source_asset_id=1
+2026-09-22 10:37:35 [debug    ] No app-wide rule or status is Discovered, skipping version-specific rule creation app_definition_id=/opt/coder/coder::ec2f0fe614763f6d5bf528f0dc29322c asset_id=129
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-config-names tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [debug    ] MCP package DB cache hit       cache_key_hash=d297826f4f00631ddb91f7000c5b30b0b24d5369a5920ded176b02c402aef2bd package_name=kraft.onyxhub.io/api/mcp server_type=remote version=unknown
+2026-09-22 10:37:35 [info     ] Upserted app definition        app_definition_id=532 app_id=kraft.onyxhub.io/api/mcp is_new=False name='Remote MCP Server (https://kraft.onyxhub.io/api/mcp)'
+2026-09-22 10:37:35 [debug    ] Upserted MCP package cache entry cache_key_hash=d297826f4f00631ddb91f7000c5b30b0b24d5369a5920ded176b02c402aef2bd package_name=kraft.onyxhub.io/api/mcp version=unknown
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Upserted app definition version app_definition_id=kraft.onyxhub.io/api/mcp app_version_id=kraft.onyxhub.io/api/mcp::unknown is_new=False version_id=1
+2026-09-22 10:37:35 [info     ] Upserted base application      asset_id=130 name='Remote MCP Server (https://kraft.onyxhub.io/api/mcp)' sub_type=AssetSubTypeMCPServer type=AssetTypeMCP unique_identifier=kraft.onyxhub.io/api/mcp::unknown
+2026-09-22 10:37:35 [info     ] Upserted device application    asset_id=130 device_application_id=8 device_id=1
+2026-09-22 10:37:35 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:35 [info     ] Upserted device_application    asset_id=130 device_application_id=8 device_id=1 install_evidence_path=/home/coder/.claude.json install_evidence_type=config_file
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation auth_type=None command=None current_gw_version=None desktop_agent_user_id=1 installation_id=3 mcp_asset_id=130 resolved_package_status=remote
+2026-09-22 10:37:35 [info     ] Replaced MCP installation dependencies installation_id=3 upserted=0
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation via activity auth_type=None command=None desktop_agent_user_id=1 installation_id=3 mcp_asset_id=130 url=https://kraft.onyxhub.io/api/mcp
+2026-09-22 10:37:35 [info     ] Upserted MCP server            asset_id=130 mcp_server_id=3 server_type=Remote source_type=Http
+2026-09-22 10:37:35 [info     ] Upserted asset_source          asset_id=130 source=scanner source_id=130
+2026-09-22 10:37:35 [info     ] Upserted asset connection      asset_connection_id=125 connection_type=AgentToMcp destination_asset_id=130 source_asset_id=1
+2026-09-22 10:37:35 [debug    ] No app-wide rule or status is Discovered, skipping version-specific rule creation app_definition_id=kraft.onyxhub.io/api/mcp asset_id=130
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-config-names tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [debug    ] MCP package cache miss         cache_key_hash=6ba6cf0f7d763862a90488822e1cb0df5c5482039d3eaf955ee58ff89a552fa9
+2026-09-22 10:37:35 [info     ] Upserted app definition        app_definition_id=982 app_id=node::ec2f0fe614763f6d5bf528f0dc29322c is_new=False name='Local MCP Server (node)'
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Upserted app definition version app_definition_id=node::ec2f0fe614763f6d5bf528f0dc29322c app_version_id=node::ec2f0fe614763f6d5bf528f0dc29322c::unknown is_new=False version_id=333
+2026-09-22 10:37:35 [info     ] Upserted base application      asset_id=131 name='Local MCP Server (node)' sub_type=AssetSubTypeMCPServer type=AssetTypeMCP unique_identifier=node::ec2f0fe614763f6d5bf528f0dc29322c::unknown
+2026-09-22 10:37:35 [info     ] Upserted device application    asset_id=131 device_application_id=9 device_id=1
+2026-09-22 10:37:35 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:35 [info     ] Upserted device_application    asset_id=131 device_application_id=9 device_id=1 install_evidence_path=/home/coder/.claude/plugins/cache/claude-ftw/autonomous-workflow/2.10.0/.mcp.json install_evidence_type=config_file
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation auth_type=None command=node current_gw_version=None desktop_agent_user_id=1 installation_id=4 mcp_asset_id=131 resolved_package_status=resolved
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation via activity auth_type=None command=node desktop_agent_user_id=1 installation_id=4 mcp_asset_id=131 url=None
+2026-09-22 10:37:35 [info     ] Upserted MCP server            asset_id=131 mcp_server_id=4 server_type=Local source_type=File
+2026-09-22 10:37:35 [info     ] Upserted asset_source          asset_id=131 source=scanner source_id=131
+2026-09-22 10:37:35 [info     ] Upserted asset connection      asset_connection_id=126 connection_type=AgentToMcp destination_asset_id=131 source_asset_id=1
+2026-09-22 10:37:35 [debug    ] No app-wide rule or status is Discovered, skipping version-specific rule creation app_definition_id=node::ec2f0fe614763f6d5bf528f0dc29322c asset_id=131
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-config-names tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Detected bridge package        original_spec=mcp-remote package_name=mcp-remote version=None
+2026-09-22 10:37:35 [debug    ] MCP package memory cache hit   cache_key_hash=1571b184a753cf187fa0fab2ab01cc65af36f5620f0e2d1722614729d757ca5b
+2026-09-22 10:37:35 [info     ] Upserted app definition        app_definition_id=534 app_id=mcp-remote is_new=False name='MCP Remote MCP Server'
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Upserted app definition version app_definition_id=mcp-remote app_version_id=mcp-remote::0.14.3 is_new=False version_id=334
+2026-09-22 10:37:35 [info     ] Upserted base application      asset_id=132 name='MCP Remote MCP Server' sub_type=AssetSubTypeMCPServer type=AssetTypeMCP unique_identifier=mcp-remote::0.14.3
+2026-09-22 10:37:35 [info     ] Upserted device application    asset_id=132 device_application_id=10 device_id=1
+2026-09-22 10:37:35 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:35 [info     ] Upserted device_application    asset_id=132 device_application_id=10 device_id=1 install_evidence_path=/home/coder/.claude/plugins/cache/claude-ftw/codebase-agents/1.8.0/.mcp.json install_evidence_type=config_file
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation auth_type=None command=npx current_gw_version=None desktop_agent_user_id=1 installation_id=5 mcp_asset_id=132 resolved_package_status=resolved
+2026-09-22 10:37:35 [info     ] Replaced MCP installation dependencies installation_id=5 upserted=81
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation via activity auth_type=None command=npx desktop_agent_user_id=1 installation_id=5 mcp_asset_id=132 url=None
+2026-09-22 10:37:35 [info     ] Upserted MCP server            asset_id=132 mcp_server_id=5 server_type=Local source_type=Npm
+2026-09-22 10:37:35 [info     ] Upserted asset_source          asset_id=132 source=scanner source_id=132
+2026-09-22 10:37:35 [info     ] Upserted asset connection      asset_connection_id=127 connection_type=AgentToMcp destination_asset_id=132 source_asset_id=1
+2026-09-22 10:37:35 [debug    ] No app-wide rule or status is Discovered, skipping version-specific rule creation app_definition_id=mcp-remote asset_id=132
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-config-names tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Upserted app definition        app_definition_id=537 app_id=mcp.tavily.com/mcp is_new=False name='Tavily MCP Server'
+2026-09-22 10:37:35 [debug    ] Upserted MCP package cache entry cache_key_hash=27457cc2943ee7117cec44b698025fa956cb3c8e557112e0efac0dcf3f6cb313 package_name=mcp.tavily.com/mcp version=unknown
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Upserted app definition version app_definition_id=mcp.tavily.com/mcp app_version_id=mcp.tavily.com/mcp::unknown is_new=False version_id=6
+2026-09-22 10:37:35 [info     ] Upserted base application      asset_id=133 name='Tavily MCP Server' sub_type=AssetSubTypeMCPServer type=AssetTypeMCP unique_identifier=mcp.tavily.com/mcp::unknown
+2026-09-22 10:37:35 [info     ] Upserted device application    asset_id=133 device_application_id=11 device_id=1
+2026-09-22 10:37:35 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:35 [info     ] Upserted device_application    asset_id=133 device_application_id=11 device_id=1 install_evidence_path=/home/coder/.claude/plugins/cache/claude-ftw/codebase-agents/1.8.0/.mcp.json install_evidence_type=config_file
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation auth_type=None command=npx current_gw_version=None desktop_agent_user_id=1 installation_id=6 mcp_asset_id=133 resolved_package_status=None
+2026-09-22 10:37:35 [info     ] Replaced MCP installation dependencies installation_id=6 upserted=0
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation via activity auth_type=None command=npx desktop_agent_user_id=1 installation_id=6 mcp_asset_id=133 url=None
+2026-09-22 10:37:35 [info     ] Upserted MCP server            asset_id=133 mcp_server_id=6 server_type=Remote source_type=Http
+2026-09-22 10:37:35 [info     ] Upserted asset_source          asset_id=133 source=scanner source_id=133
+2026-09-22 10:37:35 [info     ] Upserted asset connection      asset_connection_id=128 connection_type=McpToMcp destination_asset_id=133 source_asset_id=132
+2026-09-22 10:37:35 [debug    ] No app-wide rule or status is Discovered, skipping version-specific rule creation app_definition_id=mcp.tavily.com/mcp asset_id=133
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-config-names tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [debug    ] MCP package memory cache hit   cache_key_hash=c8c2d279a780c53bf9bedb793039d5cb52bdceecf6a5278236f2205d611c13ba
+2026-09-22 10:37:35 [info     ] Upserted app definition        app_definition_id=533 app_id=@upstash/context7-mcp is_new=False name='Context7 MCP Server'
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-reingest-skip-enabled tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Upserted app definition version app_definition_id=@upstash/context7-mcp app_version_id=@upstash/context7-mcp::4.1.1 is_new=False version_id=336
+2026-09-22 10:37:35 [info     ] Upserted base application      asset_id=134 name='Context7 MCP Server' sub_type=AssetSubTypeMCPServer type=AssetTypeMCP unique_identifier=@upstash/context7-mcp::4.1.1
+2026-09-22 10:37:35 [info     ] Upserted device application    asset_id=134 device_application_id=12 device_id=1
+2026-09-22 10:37:35 [info     ] Bulk upserted asset install evidence count=1
+2026-09-22 10:37:35 [info     ] Upserted device_application    asset_id=134 device_application_id=12 device_id=1 install_evidence_path=/home/coder/.claude/plugins/cache/claude-ftw/codebase-agents/1.8.0/.mcp.json install_evidence_type=config_file
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation auth_type=None command=npx current_gw_version=None desktop_agent_user_id=1 installation_id=7 mcp_asset_id=134 resolved_package_status=resolved
+2026-09-22 10:37:35 [info     ] Replaced MCP installation dependencies installation_id=7 upserted=103
+2026-09-22 10:37:35 [info     ] Upserted MCP Gateway installation via activity auth_type=None command=npx desktop_agent_user_id=1 installation_id=7 mcp_asset_id=134 url=None
+2026-09-22 10:37:35 [info     ] Upserted MCP server            asset_id=134 mcp_server_id=7 server_type=Local source_type=Npm
+2026-09-22 10:37:35 [info     ] Upserted asset_source          asset_id=134 source=scanner source_id=134
+2026-09-22 10:37:35 [info     ] Upserted asset connection      asset_connection_id=129 connection_type=AgentToMcp destination_asset_id=134 source_asset_id=1
+2026-09-22 10:37:35 [debug    ] No app-wide rule or status is Discovered, skipping version-specific rule creation app_definition_id=@upstash/context7-mcp asset_id=134
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=mcp-config-names tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='subagent ingest disabled for this tenant — no subagent assets to point at' step=subagent_mcp_edges
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='no sessions in payload' step=sessions
+2026-09-22 10:37:35 [info     ] Processing single agent        app_name=codex normalized_app_def_id=endpoint_codex original_app_def_id=endpoint_codex source=scanner
+2026-09-22 10:37:35 [info     ] Bulk upserted device source stamps fresh=0 plain=1
+2026-09-22 10:37:35 [info     ] Resolved username              username=coder username_id=1
+2026-09-22 10:37:35 [info     ] Upserted app definition        app_definition_id=530 app_id=endpoint_codex is_new=False name=Codex
+2026-09-22 10:37:35 [info     ] Upserted base application      asset_id=2 name='Codex (coder)' sub_type=AssetSubTypeAIAgent type=AssetTypeDesktopAgent unique_identifier=endpoint_codex::ec2f0fe614763f6d5bf528f0dc29322c
+2026-09-22 10:37:35 [info     ] Upserted asset_source          asset_id=2 source=scanner source_id=2
+2026-09-22 10:37:35 [info     ] Upserted device application    asset_id=2 device_application_id=2 device_id=1
+2026-09-22 10:37:35 [info     ] Upserted desktop_agent_application asset_id=2 desktop_agent_application_id=2 last_guard_status=True
+2026-09-22 10:37:35 [debug    ] Username_asset already exists  asset_id=2 username_asset_id=2 username_id=1
+2026-09-22 10:37:35 [debug    ] New row contained in existing, returning existing asset_id=2 desktop_agent_user_id=2 device_id=1
+2026-09-22 10:37:35 [info     ] Processed single agent successfully asset_id=2 desktop_agent_user_id=2 device_id=1 employee_id=None username_id=1
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='legacy inline-asset migration runs inside process_single_agent; a scanner object carries no old-format inline assets' step=legacy_migration
+2026-09-22 10:37:35 [info     ] Creating builtin tools for agent agent_name=codex asset_id=2 tool_count=5
+2026-09-22 10:37:35 [info     ] Builtin tools creation complete agent_name=codex asset_id=2 tools_created=5
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='no skills in payload' step=skills_upsert
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='no subagents in payload' step=subagents_upsert
+2026-09-22 10:37:35 [info     ] Bulk upserted 1 channels
+2026-09-22 10:37:35 [info     ] Fetched active channels        application_id=2 count=1
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='no MCP servers in payload' step=mcp_upsert
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='subagent ingest disabled for this tenant — no subagent assets to point at' step=subagent_mcp_edges
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='no sessions in payload' step=sessions
+2026-09-22 10:37:35 [info     ] reconcile SKIPPED for agent with empty keep-set — no MCP-detection payload in this object; connections left intact (empty scan treated as no-signal, not uninstall-everything) agent_id=2
+2026-09-22 10:37:35 [error    ] Feature flag service not initialized, returning default default=False flag_key=desktop-agent-generation-succession tenant_uuid=ddd1baa8-511f-43ae-b41b-ceec09aa1baa
+2026-09-22 10:37:35 [info     ] Guard aggregate skipped: scan incomplete (partial/cancelled run must not downgrade) agents_in_aggregate=3 scan_run_id=787e025a-2e9f-4419-b14d-d5009bce1492 serial_number=ec2f0fe614763f6d5bf528f0dc29322c
+2026-09-22 10:37:35 [info     ] Bulk upserted device source stamps fresh=1 plain=0
+2026-09-22 10:37:35 [info     ] Scanner installations inserted count=0 tenant_schema=kimi_diff_newlane
+2026-09-22 10:37:35 [info     ] ingestion step skipped         reason='temporal client not configured — posture bridge not started (local unit context)' step=posture_trigger
+2026-09-22 10:37:35 [info     ] ingested scanner object        s3_key='tenant=ddd1baa8-511f-43ae-b41b-ceec09aa1baa/source=mcp-scanner/date=2026-09-22/hour=10/kimi-scan.jsonl' tenant_schema=kimi_diff_newlane
+
+=== OUTCOME: processed ===
+DONE
