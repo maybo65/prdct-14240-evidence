@@ -23,8 +23,9 @@ Scope of this artifact: the **producible inventory** the board's how-to-close as
 | 9 | `kimi-hooks-install --block-prompts` default | (new flag) | `"true"` (hard block mode) | New CLI installs of Kimi hooks that don't pass the flag: default to hard-block instead of replacement. | N (per-install CLI default, user-overridable) |
 | 10 | `kimi-hooks-install --endpoint` default | (new flag) | `https://ai-guard.onyx.security` (when flag + `ONYX_AI_GUARD_ENDPOINT` env both empty) | New Kimi-hooks installs with no explicit endpoint. | N (per-install CLI default, user-overridable) |
 | 11 | `kimi-hooks-install` derived hooks-runtime-protection | (new) | `true` — derived (not left to flag default) for the hooks topology; explicit `--hooks-runtime-protection[=false]` wins | New Kimi-hooks installs that don't set the flag: content protection on. | N (per-install CLI default, user-overridable) |
+| 12 | Go risk registry entry for `unsanctioned-agent-deployed` (`backend/internal/issues/issues.go`) | **Absent** (no Go-side risk row while the issue was retired) | Present: `Identifier "unsanctioned-agent-deployed"`, `Factor = AccessControls`, `Score = 3.0` | Go issue-risk consumers, fleet-wide: the revived finding now carries its Go-side risk factor/score, mirroring the Python catalog entry so both lanes score it identically. | **Y** (couples to #1 — part of the same revive; the Go score is what the finding surfaces at once #1 fires) |
 
-Rows 1–4 are one coupled owner decision (revive + fleet-wide enablement + firing scope + compliance mapping). Rows 5–7 are one display-fallback change across three reads. Rows 8–11 are internal/CLI defaults.
+Rows 1–4 and 12 are one coupled owner decision (revive + fleet-wide enablement + firing scope + compliance mapping + the mirrored Go risk score). Rows 5–7 are one display-fallback change across three reads. Rows 8–11 are internal/CLI defaults.
 
 ---
 
@@ -131,6 +132,25 @@ func hooksRuntimeProtectionDefaultFor(integrationType string) bool {
     }
 }
 ```
+
+### Row 12 — `backend/internal/issues/issues.go` (verified at current HEAD `0f0ffca264`)
+The revive adds a Go-side risk registry entry so the finding scores identically on the Go lane. Before this diff the identifier had **no** row in `issues.go` (it was retired); after, at `issues.go:130-137`:
+```go
+{
+    // A discovered/unsanctioned AI agent platform. Factor + score mirror the
+    // Python catalog entry (unsanctioned-agent-deployed, AccessControls, 3.0).
+    Identifier: strPtr("unsanctioned-agent-deployed"),
+    risk: schema.Risk{
+        Factor: schema.RiskFactorAccessControls.String(),
+        Score:  common.Float32(3),
+    },
+},
+```
+- **Before → after:** absent (retired) → present with `Factor = AccessControls`, `Score = 3.0`.
+- **Who gets it:** every consumer of the Go issue-risk registry, fleet-wide — the same set that gets rows 1–4. The Go score mirrors the Python catalog's risk metadata so the revived issue is scored the same on both lanes.
+- **Owner-decision?** Yes, as part of the row-1 revive: this row does not *independently* enable anything (row 2's migration does that), but it is the Go-side risk value the finding surfaces once the revive fires, so it is inventoried here with the coupled decision.
+
+`git diff origin/main...HEAD -- backend/internal/issues/issues.go` shows this block added (`+`), with no matching entry on `origin/main`.
 
 ---
 
