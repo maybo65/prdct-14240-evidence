@@ -1,0 +1,1 @@
+d5b1b32f-4486-4849-89cc-1dc0671c3d67|17|20|298|Open|Block|6|Prompt Defense and Content Moderation Violations|The prompt violated both prompt defense and content moderation rules by requesting execution of a custom probe and potentially exfiltrating data.|1|2026-09-17 14:12:08.848621+00|2026-09-17 14:12:08.848621+00
