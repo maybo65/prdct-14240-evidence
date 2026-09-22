@@ -1,0 +1,35 @@
+=== C6 — real serialized IssueDetectionWorkflowInput at the enforced cap ===
+model: common.models.workflow_inputs.IssueDetectionWorkflowInput
+cap constant AGENT_ISSUE_RECALC_BATCH_SIZE = 1000  (crud_service/api/routes/access_control.py:823)
+asset_ids length at cap: 1000
+
+--- ACTUAL serialized payload, python path model_dump_json() ---
+total bytes: 8141
+HEAD (first 240 chars):
+{"asset_ids":[1000000,1000001,1000002,1000003,1000004,1000005,1000006,1000007,1000008,1000009,1000010,1000011,1000012,1000013,1000014,1000015,1000016,1000017,1000018,1000019,1000020,1000021,1000022,1000023,1000024,1000025,1000026,1000027,10
+...
+TAIL (last 240 chars):
+,1000986,1000987,1000988,1000989,1000990,1000991,1000992,1000993,1000994,1000995,1000996,1000997,1000998,1000999],"platform_tenant":{"id":1,"name":"onyx_security","schema_name":"onyx_security","uuid":"6f9619ff-8b86-d011-b42d-00cf4fc964ff"}}
+
+--- ACTUAL serialized payload, Go child-workflow path model_dump_json(by_alias=True) ---
+total bytes: 8140
+HEAD (first 200 chars):
+{"asset_ids":[1000000,1000001,1000002,1000003,1000004,1000005,1000006,1000007,1000008,1000009,1000010,1000011,1000012,1000013,1000014,1000015,1000016,1000017,1000018,1000019,1000020,1000021,1000022,10
+...
+TAIL (last 200 chars):
+0,1000991,1000992,1000993,1000994,1000995,1000996,1000997,1000998,1000999],"platform_tenant":{"ID":1,"Name":"onyx_security","SchemaName":"onyx_security","UUID":"6f9619ff-8b86-d011-b42d-00cf4fc964ff"}}
+
+tenant reference bytes alone: 113
+
+=== headroom vs Temporal limits ===
+payload at cap: 8140 bytes (~7.9 KiB)
+Temporal 2 MiB hard limit: 2097152 bytes -> 257x headroom
+Temporal 256 KiB warn:     262144 bytes -> under warn by 254004 bytes (True)
+
+=== what a 10,000-device family becomes (the boundary the cap enforces) ===
+10000 devices -> 10 bounded starts of <= 1000 ids each (~7.9 KiB per start),
+NEVER one ~79 KiB payload. Payload no longer scales with family size.
+
+=== proof the list is genuinely ints (not blobs) — type of each element ===
+all(isinstance(x,int) for asset_ids): True
+first 5 ids: [1000000, 1000001, 1000002, 1000003, 1000004]  last 5 ids: [1000995, 1000996, 1000997, 1000998, 1000999]
