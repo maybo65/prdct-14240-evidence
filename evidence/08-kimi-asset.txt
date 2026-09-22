@@ -1,0 +1,1 @@
+95|Kimi CLI (coder)||AssetStatusUnsanctioned|endpoint_kimi-cli
