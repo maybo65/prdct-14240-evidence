@@ -1,0 +1,19 @@
+LEG 2 — Root sweep of non-root homes; root's KIMI_SHARE_DIR set to /tmp/kimi-rootshare
+HEAD 16322b883c48e0a836b16eddea6a175442cfbd82  |  captured 2026-09-20 (UTC)
+Binary: /tmp/onyx-scanner-pr run as ROOT: scan --verbose --full-scan=false (include-other-users)
+
+== per-user kimi-cli detection (raw scanner stdout) ==
+2026-09-20T03:44:39.904051566Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/coder/.kimi", "username": "coder"}
+2026-09-20T03:44:45.888623785Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kimi-cli", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/testkimi/.kimi", "username": "testkimi"}
+
+== root's OWN scan resolved root's KIMI_SHARE_DIR (proves env applies to root, its owner) ==
+1251:2026-09-20T03:44:55.122221218Z	DEBUG	MCP config path exists	{"detector": "kimi-cli", "username": "root", "path": "/tmp/kimi-rootshare/mcp.json"}
+1253:2026-09-20T03:44:55.122402709Z	DEBUG	Detector scanned	{"detector": "kimi-cli", "username": "root", "outcome": "not_installed", "paths_checked": ["/tmp/kimi-rootshare/mcp.json", "/root/.kimi/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+
+== detection payload fields per user (codingAgent) ==
+{"configPath": "/home/coder/.kimi", "configExists": true, "isGuarded": true, "installEvidenceType": "dsl_dir", "installEvidencePath": "/home/coder/.kimi", "mcpServers": ["e2e-filesystem"], "username": "coder"}
+{"configPath": "/home/testkimi/.kimi", "configExists": true, "isGuarded": true, "installEvidenceType": "dsl_dir", "installEvidencePath": "/home/testkimi/.kimi", "mcpServers": ["testkimi-marker-server"], "username": "testkimi"}
+
+KEY: coder->/home/coder/.kimi, testkimi->/home/testkimi/.kimi. Neither resolved to
+/tmp/kimi-rootshare; that path appears ONLY under username=root. Root's env did NOT
+collapse other users onto one path (detection lane: per-user /proc environ).
