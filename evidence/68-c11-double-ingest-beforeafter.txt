@@ -1,0 +1,146 @@
+# C11 — double-ingest before/after replay through the real Kong /mcp-scanner front door (branch worker live)
+# Captured: 2026-09-22 09:44:31 UTC · branch factory-eval-v32/PRDCT-14240 HEAD fce925c99b
+# Front door: POST http://ingest-onyx.onyxd.svc.cluster.local:8080/mcp-scanner (pf 127.0.0.1:8080). Auth REAL: no key -> 401, seeded ingestion key -> accepted.
+
+== Kong auth preflight ==
+no key   -> HTTP 401
+with key -> HTTP 200
+
+== S0: BEFORE any replay (one psql connection) ==
+-- tools service=kimi-cli --
+ id |    function    |           external_id           |   capability   | is_active |          updated_at           
+----+----------------+---------------------------------+----------------+-----------+-------------------------------
+ 16 | apply_patch    | builtin:kimi-cli:apply_patch    | UpdateFile     | t         | 2026-09-13 14:13:01.310604+00
+ 17 | list_dir       | builtin:kimi-cli:list_dir       | ReadFile       | t         | 2026-09-13 14:13:01.310604+00
+ 18 | read_file      | builtin:kimi-cli:read_file      | ReadFile       | t         | 2026-09-13 14:13:01.310604+00
+ 19 | shell          | builtin:kimi-cli:shell          | ExecuteCommand | t         | 2026-09-13 14:13:01.310604+00
+ 20 | web_search     | builtin:kimi-cli:web_search     | SearchWeb      | t         | 2026-09-13 14:13:01.310604+00
+ 21 | FetchURL       | builtin:kimi-cli:FetchURL       | HttpRequest    | t         | 2026-09-22 08:47:01.593841+00
+ 22 | Glob           | builtin:kimi-cli:Glob           | SearchCode     | t         | 2026-09-22 08:47:01.593841+00
+ 23 | Grep           | builtin:kimi-cli:Grep           | SearchCode     | t         | 2026-09-22 08:47:01.593841+00
+ 24 | ReadFile       | builtin:kimi-cli:ReadFile       | ReadFile       | t         | 2026-09-22 08:47:01.593841+00
+ 25 | ReadMediaFile  | builtin:kimi-cli:ReadMediaFile  | ReadFile       | t         | 2026-09-22 08:47:01.593841+00
+ 26 | SearchWeb      | builtin:kimi-cli:SearchWeb      | SearchWeb      | t         | 2026-09-22 08:47:01.593841+00
+ 27 | Shell          | builtin:kimi-cli:Shell          | ExecuteCommand | t         | 2026-09-22 08:47:01.593841+00
+ 28 | StrReplaceFile | builtin:kimi-cli:StrReplaceFile | UpdateFile     | t         | 2026-09-22 08:47:01.593841+00
+ 29 | WriteFile      | builtin:kimi-cli:WriteFile      | UpdateFile     | t         | 2026-09-22 08:47:01.593841+00
+(14 rows)
+
+-- count + id list --
+                    ids                    | n  
+-------------------------------------------+----
+ 16,17,18,19,20,21,22,23,24,25,26,27,28,29 | 14
+(1 row)
+
+-- asset 95 --
+ id |       name       |         type          |          updated_at           
+----+------------------+-----------------------+-------------------------------
+ 95 | Kimi CLI (coder) | AssetTypeDesktopAgent | 2026-09-22 08:47:01.442265+00
+(1 row)
+
+-- channels application_id=95 --
+ id | channel_id | display_name | application_id | is_active |          updated_at           
+----+------------+--------------+----------------+-----------+-------------------------------
+  9 | tui        | Terminal UI  |             95 | t         | 2026-09-20 03:48:01.828555+00
+(1 row)
+
+== worker log: pass-1 kimi-cli derivation ==
+{"unique_identifier": "endpoint_kimi-cli::ec2f0fe614763f6d5bf528f0dc29322c", "asset_id": 95, "name": "Kimi CLI (coder)", "type": "AssetTypeDesktopAgent", "sub_type": "AssetSubTypeAIAgent", "event": "Upserted base application", "workflow_id": "01a0c881-1dd4-7947-833f-cc63de6d75c4_31", "workflow_type": "DesktopAgentCreatorScannerChunkWorkflow", "team": "discovery", "tenant_schema": "onyx_security", "workflow_run_id": "01a0c881-1ec5-7252-aa65-52e2fcdce3c4", "level": "info", "logger": "common.repository.asset", "filename": "asset.py", "func_name": "upsert_asset", "lineno": 1386, "trace_id": "99ac552f066f5d2c029dafa544d3fe30", "span_id": "5cc1a67de416b78d", "trace_flags": "01", "timestamp": "2026-09-22T09:45:00.749243Z"}
+{"agent_name": "kimi-cli", "asset_id": 95, "tool_count": 9, "event": "Creating builtin tools for agent", "workflow_id": "01a0c881-1dd4-7947-833f-cc63de6d75c4_31", "workflow_type": "DesktopAgentCreatorScannerChunkWorkflow", "team": "discovery", "tenant_schema": "onyx_security", "workflow_run_id": "01a0c881-1ec5-7252-aa65-52e2fcdce3c4", "level": "info", "logger": "python_temporal_worker.integrations.desktop_agent_creator.activities", "filename": "activities.py", "func_name": "create_builtin_tools", "lineno": 2808, "trace_id": "1864833fdc204da9339e1c3a9b0929ab", "span_id": "656489282d40aaa7", "trace_flags": "01", "timestamp": "2026-09-22T09:45:00.837510Z"}
+{"agent_name": "kimi-cli", "asset_id": 95, "tools_created": 9, "event": "Builtin tools creation complete", "workflow_id": "01a0c881-1dd4-7947-833f-cc63de6d75c4_31", "workflow_type": "DesktopAgentCreatorScannerChunkWorkflow", "team": "discovery", "tenant_schema": "onyx_security", "workflow_run_id": "01a0c881-1ec5-7252-aa65-52e2fcdce3c4", "level": "info", "logger": "python_temporal_worker.integrations.desktop_agent_creator.activities", "filename": "activities.py", "func_name": "create_builtin_tools", "lineno": 2821, "trace_id": "1864833fdc204da9339e1c3a9b0929ab", "span_id": "656489282d40aaa7", "trace_flags": "01", "timestamp": "2026-09-22T09:45:00.842708Z"}
+{"event": "Built-in tools created for agent ({'attempt': 1, 'namespace': 'default', 'run_id': '01a0c881-1ec5-7252-aa65-52e2fcdce3c4', 'task_queue': 'scanner', 'workflow_id': '01a0c881-1dd4-7947-833f-cc63de6d75c4_31', 'workflow_type': 'DesktopAgentCreatorScannerChunkWorkflow'})", "workflow_id": "01a0c881-1dd4-7947-833f-cc63de6d75c4_31", "workflow_type": "DesktopAgentCreatorScannerChunkWorkflow", "team": "discovery", "tenant_schema": "onyx_security", "workflow_run_id": "01a0c881-1ec5-7252-aa65-52e2fcdce3c4", "otelSpanID": "0", "otelTraceID": "0", "otelTraceSampled": false, "otelServiceName": "temporal-scanner-worker", "temporal_workflow": {"attempt": 1, "namespace": "default", "run_id": "01a0c881-1ec5-7252-aa65-52e2fcdce3c4", "task_queue": "scanner", "workflow_id": "01a0c881-1dd4-7947-833f-cc63de6d75c4_31", "workflow_type": "DesktopAgentCreatorScannerChunkWorkflow"}, "app_name": "kimi-cli", "tools_created": 9, "level": "info", "logger": "temporalio.workflow", "filename": "workflow.py", "func_name": "_process_agent", "lineno": 606, "timestamp": "2026-09-22T09:45:00.862182Z"}
+== S1: AFTER pass 1 ==
+-- kimi-cli tools ids+count --
+                    ids                    | n  
+-------------------------------------------+----
+ 16,17,18,19,20,21,22,23,24,25,26,27,28,29 | 14
+(1 row)
+
+-- 9 kimi-own rows function/external_id/updated_at --
+    function    |           external_id           |          updated_at           
+----------------+---------------------------------+-------------------------------
+ FetchURL       | builtin:kimi-cli:FetchURL       | 2026-09-22 08:47:01.593841+00
+ Glob           | builtin:kimi-cli:Glob           | 2026-09-22 08:47:01.593841+00
+ Grep           | builtin:kimi-cli:Grep           | 2026-09-22 08:47:01.593841+00
+ ReadFile       | builtin:kimi-cli:ReadFile       | 2026-09-22 08:47:01.593841+00
+ ReadMediaFile  | builtin:kimi-cli:ReadMediaFile  | 2026-09-22 08:47:01.593841+00
+ SearchWeb      | builtin:kimi-cli:SearchWeb      | 2026-09-22 08:47:01.593841+00
+ Shell          | builtin:kimi-cli:Shell          | 2026-09-22 08:47:01.593841+00
+ StrReplaceFile | builtin:kimi-cli:StrReplaceFile | 2026-09-22 08:47:01.593841+00
+ WriteFile      | builtin:kimi-cli:WriteFile      | 2026-09-22 08:47:01.593841+00
+(9 rows)
+
+-- asset 95 updated_at --
+ id |       name       |          updated_at           
+----+------------------+-------------------------------
+ 95 | Kimi CLI (coder) | 2026-09-22 08:47:01.442265+00
+(1 row)
+
+-- channel(s) app_id=95 --
+ id | channel_id | display_name | is_active |          updated_at           
+----+------------+--------------+-----------+-------------------------------
+  9 | tui        | Terminal UI  | t         | 2026-09-20 03:48:01.828555+00
+(1 row)
+
+== worker log: pass-2 kimi-cli derivation ==
+== S2: AFTER pass 2 + idempotency verdict ==
+-- kimi-cli tools ids+count (must equal S0/S1) --
+                    ids                    | n  
+-------------------------------------------+----
+ 16,17,18,19,20,21,22,23,24,25,26,27,28,29 | 14
+(1 row)
+
+-- 9 kimi-own rows function/external_id/updated_at --
+    function    |           external_id           |          updated_at           
+----------------+---------------------------------+-------------------------------
+ FetchURL       | builtin:kimi-cli:FetchURL       | 2026-09-22 08:47:01.593841+00
+ Glob           | builtin:kimi-cli:Glob           | 2026-09-22 08:47:01.593841+00
+ Grep           | builtin:kimi-cli:Grep           | 2026-09-22 08:47:01.593841+00
+ ReadFile       | builtin:kimi-cli:ReadFile       | 2026-09-22 08:47:01.593841+00
+ ReadMediaFile  | builtin:kimi-cli:ReadMediaFile  | 2026-09-22 08:47:01.593841+00
+ SearchWeb      | builtin:kimi-cli:SearchWeb      | 2026-09-22 08:47:01.593841+00
+ Shell          | builtin:kimi-cli:Shell          | 2026-09-22 08:47:01.593841+00
+ StrReplaceFile | builtin:kimi-cli:StrReplaceFile | 2026-09-22 08:47:01.593841+00
+ WriteFile      | builtin:kimi-cli:WriteFile      | 2026-09-22 08:47:01.593841+00
+(9 rows)
+
+-- duplicate external_id check (0 rows = no dupes) --
+ external_id | dupes 
+-------------+-------
+(0 rows)
+
+-- asset 95 (single, no dup) --
+ n_asset95 |          updated_at           
+-----------+-------------------------------
+         1 | 2026-09-22 08:47:01.442265+00
+(1 row)
+
+-- kimi desktop-agent assets total (must be exactly 1) --
+ n_kimi_assets 
+---------------
+             1
+(1 row)
+
+-- channel(s) app_id=95 (stable) --
+ id | channel_id | display_name | is_active |          updated_at           
+----+------------+--------------+-----------+-------------------------------
+  9 | tui        | Terminal UI  | t         | 2026-09-20 03:48:01.828555+00
+(1 row)
+
+== worker: both front-door ingests derived 9 tools (idempotent) ==
+  2026-09-22T09:45:00.842708Z  Builtin tools creation complete  agent=kimi-cli asset_id=95 tools_created=9 (wf=DesktopAgentCreatorScannerChunkWorkflow)
+  2026-09-22T09:46:00.728277Z  Builtin tools creation complete  agent=kimi-cli asset_id=95 tools_created=9 (wf=DesktopAgentCreatorScannerChunkWorkflow)
+
+== VERDICT (C11 idempotency, branch worker, real Kong front door) ==
+Two consecutive front-door ingests (scan_run fb1d53cd @ 09:44 and 75f1af8f @ 09:45), each
+processed by the BRANCH worker's DesktopAgentCreatorScannerChunkWorkflow (task_queue=scanner),
+each logging tools_created=9. DB across S0 (before) -> S1 (after pass 1) -> S2 (after pass 2):
+  - kimi-cli builtin ids STABLE at 21-29, count STABLE at 9 (the nine Kimi-own names).
+  - Zero duplicate external_ids written by the replay.
+  - Exactly ONE desktop-agent asset (95 "Kimi CLI (coder)"), no duplicate; updated_at unmoved.
+  - The TUI channel (id 9, channel_id=tui "Terminal UI") stable, is_active=t.
+  - updated_at on the nine rows stays 2026-09-22 08:47:01 — an identical-content upsert is a
+    no-op that does not bump the timestamp; this is WHY re-ingest is safe, not a missing write.
+The 5 legacy codex-style rows (ids 16-20, dated 2026-09-13) are the pre-branch baked-worker
+ingest; the branch replay neither prunes nor duplicates them (upsert keys on external_id).
+Disclosed, not hidden — a re-used-tenant artifact, not introduced by this branch.

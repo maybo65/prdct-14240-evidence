@@ -1,0 +1,152 @@
+# C11 — malformed message parked to the DLQ (REAL endpoint_asset_ingestion poison path)
+
+Captured: 2026-09-22 UTC · Branch: factory-eval-v32/PRDCT-14240 · Lane: endpoint_asset_ingestion
+(in-process SQS lane). Infra: localstack SQS+S3 (real queues endpoint-asset-ingestion +
+endpoint-asset-ingestion-dlq; real bucket `ingestion`), live onyxd Postgres (real tenant resolve).
+
+## What the verifier board's C11 "how to close it" asked for (verbatim)
+> "Separately, show one malformed message actually parked: send a deterministically unparseable
+>  object and paste the DLQ evidence — the dead-letter queue message with its poison_reason, or the
+>  poison_messages/dead_letters counter incrementing plus the consumer log line naming the parked
+>  key — rather than only the front-door 200 and code citations."
+
+## Result — the malformed message WAS parked, end to end, no mocks
+A deterministically-unparseable S3 object (`poison-probe.jsonl`, 13 bytes, content `not json {{{`)
+was referenced by a real S3 ObjectCreated notification, sent to the REAL `endpoint-asset-ingestion`
+queue, received by the REAL SQSQueueClient, and handled by the REAL AssetIngestionMessageHandler +
+ObjectIngestionProcessor. The chain, each link in the run log below:
+
+1. `SQS client connected  queue_url=.../endpoint-asset-ingestion`  (real client, real queue)
+2. message received `id=9e2da9bf-db82-44eb-bcbb-753df95419af`, `handler.handle()` invoked
+3. processor fetched the object from REAL S3, parsed it, and `route_lines` raised
+   **`ObjectParseError: scanner object has 1 non-blank line(s), none parseable as a JSON record —
+   unprocessable`** at `src/endpoint_asset_ingestion/ingestion/pipeline.py:140`
+4. handler caught it and parked: consumer log
+   **`poison object — unprocessable, dead-lettering  message_id=9e2da9bf… reason='scanner object …
+   unprocessable'`** then **`Moved message to DLQ  message_id=9e2da9bf…`**  (naming the parked msg)
+5. the DLQ actually holds it: **`DLQ ApproximateNumberOfMessages = 1`**, and the parked message
+   carries the poison reason + provenance attributes:
+     - `error_reason    = scanner object has 1 non-blank line(s), none parseable as a JSON record — unprocessable`
+     - `original_queue  = .../endpoint-asset-ingestion`
+     - `original_msg_id = 9e2da9bf-db82-44eb-bcbb-753df95419af`
+
+That is the dead-letter-queue message WITH its poison_reason — exactly what the board asked for,
+not "only the front-door 200 and code citations".
+
+## Honest disclosure (nothing dressed up)
+- **This lane has no pod in kind-slate** (only endpoint-swg-ingestion is deployed as a pod), so the
+  handler is run here via `uv run --no-sync python` against the SAME branch code + the SAME real
+  localstack queues/S3 + real Postgres the deployed lane would use. The poison→DLQ path exercised is
+  byte-identical to the deployed code (message_handler.py `_park_poison` → sqs.py `dead_letter_message`).
+- **`flag_key=None` on the processor** isolates the poison path. The per-tenant LaunchDarkly lane-gate
+  is UPSTREAM of and ORTHOGONAL to the poison mechanism: it only decides ack-drop vs proceed and can
+  never itself park. Wiring LaunchDarkly into this local harness is not the thing under test; the
+  poison-park mechanism is. (The one `Feature flag service not initialized, returning default` line is
+  the benign subagents-flag default with raise_on_error=False — expected in this local context.)
+- **Counters read `nan`** because this isolated one-shot process has no prometheus multiprocess
+  registry scraped — the increment call sites (`metrics.poison_messages.inc(...)` /
+  `metrics.dead_letters.inc()`) do run, but their value is not observable from this harness. The DLQ
+  message itself + the two consumer log lines ("dead-lettering" / "Moved message to DLQ") ARE the
+  proof; the counter read is reported honestly as unobserved rather than faked.
+- **localstack endpoint** is `http://127.0.0.1:4599` (a fresh port-forward to svc/localstack:4566);
+  used instead of the IPv6 `[::1]:4566` pf because S3Config's endpoint validator accepts `127.0.0.1`
+  but not `[::1]`. Same localstack, same queues.
+
+The harness that produced this: /tmp/c11_dlq_harness.py (real clients only — no mock/stub anywhere).
+
+================================ RAW RUN OUTPUT BELOW ================================
+
+==============================================================================
+C11 DLQ malformed-message park — REAL run (localstack SQS+S3, real Postgres)
+captured: 2026-09-22T09:55:06.860776+00:00
+poison object: s3://ingestion/tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-22/hour=09/poison-probe.jsonl
+==============================================================================
+2026-09-22 09:55:07 [info     ] SQLAlchemy database instrumentation enabled with commenter
+2026-09-22 09:55:07 [info     ] SQS client connected           queue_url=http://127.0.0.1:4599/000000000000/endpoint-asset-ingestion
+
+baseline counters: poison_messages{reason=unparseable}=nan  dead_letters=nan
+
+>>> sending S3 ObjectCreated -> endpoint-asset-ingestion
+{"Records": [{"eventName": "ObjectCreated:Put", "eventTime": "2026-09-22T09:55:10.000Z", "s3": {"bucket": {"name": "ingestion"}, "object": {"key": "tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-22/hour=09/poison-probe.jsonl", "size": 13}}}]}
+
+>>> received message id=9e2da9bf-db82-44eb-bcbb-753df95419af; invoking handler.handle() ...
+
+2026-09-22 09:55:11 [error    ] Feature flag service not initialized, returning default default=False flag_key=scannerSubagentsIngestEnabled s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-22/hour=09/poison-probe.jsonl' tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a
+2026-09-22 09:55:11 [warning  ] scanner object contained malformed lines malformed=1 s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-22/hour=09/poison-probe.jsonl' tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a total=1
+2026-09-22 09:55:11 [error    ] ingestion step failed          s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-22/hour=09/poison-probe.jsonl' step=route_lines tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /home/coder/onyx/backend_python/src/endpoint_asset_ingestion/telemetry/steps │
+│ .py:105 in wrapper                                                           │
+│                                                                              │
+│   102 │   │   │   │   │   span.set_attribute("asset_ingestion.step", step)   │
+│   103 │   │   │   │   │   span.set_attribute("tenant.schema", tenant_schema) │
+│   104 │   │   │   │   │   try:                                               │
+│ ❱ 105 │   │   │   │   │   │   return await fn(*args, **kwargs)               │
+│   106 │   │   │   │   │   except StepSkipped as skip:                        │
+│   107 │   │   │   │   │   │   outcome = "skipped"                            │
+│   108 │   │   │   │   │   │   span.set_attribute("asset_ingestion.skip_reaso │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │          args = (b'not json {{{\n',)                                     │ │
+│ │             e = ObjectParseError('scanner object has 1 non-blank         │ │
+│ │                 line(s), none parseable as a JSON record —               │ │
+│ │                 unprocessable')                                          │ │
+│ │        kwargs = {}                                                       │ │
+│ │       outcome = 'error'                                                  │ │
+│ │          span = NonRecordingSpan(SpanContext(trace_id=0x000000000000000… │ │
+│ │                 span_id=0x0000000000000000, trace_flags=0x00,            │ │
+│ │                 trace_state=[], is_remote=False))                        │ │
+│ │         start = 782685.459142806                                         │ │
+│ │          step = 'route_lines'                                            │ │
+│ │ tenant_schema = 'onyx_security'                                          │ │
+│ │         token = <Token var=<ContextVar                                   │ │
+│ │                 name='asset_ingestion_current_step' default='none' at    │ │
+│ │                 0x71988ab18720> at 0x719888c18a80>                       │ │
+│ │        tracer = <opentelemetry.trace.ProxyTracer object at               │ │
+│ │                 0x71988ae62510>                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /home/coder/onyx/backend_python/src/endpoint_asset_ingestion/ingestion/pipel │
+│ ine.py:140 in route_lines                                                    │
+│                                                                              │
+│   137 │   # object (no non-blank lines) is NOT poison — it routes to zero re │
+│       a no-op.                                                               │
+│   138 │   non_blank = sum(1 for line in lines if line.strip())               │
+│   139 │   if non_blank > 0 and not records:                                  │
+│ ❱ 140 │   │   raise ObjectParseError(f"scanner object has {non_blank} non-bl │
+│       parseable as a JSON record — unprocessable")                           │
+│   141 │   return RoutedObject(lines_total=len(lines), lines_malformed=malfor │
+│       records=records)                                                       │
+│   142                                                                        │
+│   143                                                                        │
+│                                                                              │
+│ ╭─────────── locals ────────────╮                                            │
+│ │      line = b'not json {{{'   │                                            │
+│ │     lines = [b'not json {{{'] │                                            │
+│ │ malformed = 1                 │                                            │
+│ │ non_blank = 1                 │                                            │
+│ │       raw = b'not json {{{\n' │                                            │
+│ │   records = []                │                                            │
+│ ╰───────────────────────────────╯                                            │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ObjectParseError: scanner object has 1 non-blank line(s), none parseable as a 
+JSON record — unprocessable
+
+2026-09-22 09:55:11 [warning  ] poison object — unprocessable, dead-lettering message_id=9e2da9bf-db82-44eb-bcbb-753df95419af reason='scanner object has 1 non-blank line(s), none parseable as a JSON record — unprocessable'
+2026-09-22 09:55:11 [info     ] Completed message              message_id=9e2da9bf-db82-44eb-bcbb-753df95419af
+2026-09-22 09:55:11 [info     ] Moved message to DLQ           message_id=9e2da9bf-db82-44eb-bcbb-753df95419af reason='scanner object has 1 non-blank line(s), none parseable as a JSON record — unprocessable'
+
+>>> reading DLQ for the parked message ...
+DLQ ApproximateNumberOfMessages = 1
+
+----- PARKED DLQ MESSAGE -----
+  body            : {"Records": [{"eventName": "ObjectCreated:Put", "eventTime": "2026-09-22T09:55:10.000Z", "s3": {"bucket": {"name": "ingestion"}, "object": {"key": "tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-22/hour=09/poison-probe.jsonl", "size": 13}}}]}
+  error_reason    : scanner object has 1 non-blank line(s), none parseable as a JSON record — unprocessable
+  original_queue  : http://127.0.0.1:4599/000000000000/endpoint-asset-ingestion
+  original_msg_id : 9e2da9bf-db82-44eb-bcbb-753df95419af
+------------------------------
+
+counters after: poison_messages{reason=unparseable}=nan  dead_letters=nan
+2026-09-22 09:55:12 [info     ] SQS client closed
+
+DONE
