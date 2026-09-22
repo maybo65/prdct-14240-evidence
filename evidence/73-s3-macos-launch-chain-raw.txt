@@ -1,0 +1,83 @@
+S3 — kimi→onyx-scanner launch chain: verified source citations (macOS vs Linux)
+Captured 2026-09-22 on branch factory-eval-v32/PRDCT-14240 HEAD, real repo reads.
+
+=== 1. Hook wiring is written by ONE OS-agnostic installer (POSIX; os: linux,macos) ===
+scanner/test/detector-install/agents.json:39
+  "kimi-cli": { "os": ["linux", "macos"], "status": "implemented", ... }
+
+scanner/internal/agents/kimi/constants.go
+  12: UserPromptSubmitEvent = "UserPromptSubmit"
+  13: PreToolUseEvent       = "PreToolUse"
+  14: PostToolUseEvent      = "PostToolUse"
+  27: HooksPromptInterceptCmd   = "hooks --source=kimi_cli --type=prompt"
+  28: HooksToolInterceptCmd     = "hooks --source=kimi_cli --type=tool"
+  29: HooksPostToolInterceptCmd = "hooks --source=kimi_cli --type=post_tool"
+  48: var EnforcementEvents = []string{UserPromptSubmitEvent, PreToolUseEvent}
+  51: var AllOnyxEvents     = []string{UserPromptSubmitEvent, PreToolUseEvent, PostToolUseEvent}
+
+scanner/internal/installer/kimi_hooks_installer.go
+  386: func (s *KimiHooksInstaller) hookCommand(binaryPath, subCommand string) string   # renders `"<binaryPath>" <subcommand>`, quoted for every OS
+  418: execPath, err := os.Executable()   # copies the SAME running scanner binary into the onyx/ sidecar next to config.toml
+  (installScannerBinary → OnyxDirForConfigPath = <dir(config.toml)>/onyx ; config path ~/.kimi/config.toml)
+
+  -> The event names, the three `hooks --source=kimi_cli --type=...` command lines, the match-all matcher and the
+     30s timeout are byte-identical on macOS and Linux. Kimi is POSIX-only; there is NO per-OS branch in the
+     command-line / hop construction.
+
+=== 2. The runtime dispatcher + deny render are OS-agnostic ===
+scanner/cmd/hooks.go
+  49: types.SourceKimi: agents.NewKimiHooksHandler()        # generic dispatcher, no OS branch
+  577: // resolveHooksAPIKey Priority: --api-key flag → ONYX_API_KEY env → OS keychain → file
+  598: if v := os.Getenv("ONYX_API_KEY"); v != "" { ... }    # env override lets CI supply the key with no keychain/file
+
+scanner/internal/scanner/agents/kimi_hooks.go
+  132: func emitKimiHardDeny(event, reason string) error
+  136-137: "permissionDecision":"deny", "permissionDecisionReason": reason   # deny document on stdout
+  145: return &types.ExitError{Code: 2, Message: reason}                     # AND process exit 2
+
+=== 3. The deny verdict comes ONLY from a live guard endpoint — no offline/local deny exists ===
+scanner/internal/client/evalute.go
+  210: guardUrl, _ := url.JoinPath(c.baseURL, "guard", "evaluate", "v1", c.apiKey, request.Source.String())
+  184: if response.Action == "block" { ... }          # block ONLY ever comes from the server response body
+  144: return c.failOpen(FailOpenInvalidRequest, ...)  # nil request      → allow
+  158: return c.failOpen(FailOpenEndpointUnreachable, ...) # unreachable  → allow
+  167: return c.failOpen(genericFailOpenReasonForStatus(resp.StatusCode), ...) # non-200 → allow
+  180: return c.failOpen(FailOpenResponseParseFailed, ...) # unparseable  → allow
+  252-255: func (c *GenericEvaluateClient) failOpen(...) { ... Action:"allow" ... }
+
+  -> Every failure mode FAILS OPEN (allow). A runner with no reachable guard endpoint CANNOT produce a real deny.
+     The only network-free block (sanction.forceBlockReason, hooks.go ~390) is MCP server-identity ambiguity under
+     --mcp-guard-hooks, NOT a content/prompt deny. => a macOS deny-through-chain run REQUIRES a reachable guard
+     endpoint returning {"action":"block"} + its api-key. A stub/mock host returning "block" is an automatic-fail
+     shortcut (testing-standard) and is NOT used.
+
+=== 4. The SOLE per-OS divergence in the whole chain = credential storage (keychain vs 0600 file) ===
+scanner/internal/secretstore/keyring_linux.go:20   const SystemKeychainSupported = false
+scanner/internal/secretstore/keyring_darwin.go:32  const SystemKeychainSupported = true
+scanner/internal/installer/kimi_hooks_installer.go
+  180-185: if PutInstallSecretForAllOrCurrentUser(APIKey,...) { apiKeyForFile = "" }  # keychain first; omit from file on success
+  457-462: writeOnyxConfigFile → sidecar onyx-config.json 0o600 in-home (else 0o644); config.toml 0o600 in-home
+scanner/internal/installer/system_keychain.go
+  65-119: PutInstallSecretForAllOrCurrentUser → macOS/Windows one machine-scoped keychain write; Linux iterates per-user libsecret
+
+  -> On macOS the api-key lands in the login/System keychain and is omitted from the sidecar file; on Linux, absent
+     libsecret it stays in the 0600 sidecar file. resolveHooksAPIKey (hooks.go:590) reads it back with the SAME
+     precedence on both. This credential-storage split is the ONLY macOS-specific behavior the chain exercises.
+
+=== 5. Existing CI reality (why a live macOS deny run is not already present) ===
+.github/workflows/scanner-detector-e2e.yaml
+  - macos-latest matrix job {os: macos, runner: macos-latest} runs DETECTION scan only (build scanner → detector-install
+    per agent → one `scan --output-file payload.jsonl` → compare to committed golden). No hooks install, no guarded
+    kimi run, no guard endpoint.
+  - E2E_USER_EMAIL / E2E_USER_PASSWORD are declared as optional workflow_call secrets but NEVER referenced by any step.
+  - The only network target is the ingest mirror (vars.E2E_SCANNER_INGEST_ENDPOINT + E2E_SCANNER_API_KEY) — an
+    ingest/telemetry front door, NOT guard/evaluate; it cannot return action:"block".
+scanner/test/detector-install/kimi-cli.sh
+  - REAL install + keyless first run + `kimi mcp add` (pinned kimi-cli==1.51.0). Never installs onyx hooks; never runs
+    a guarded prompt.
+Deny is otherwise proven ONLY by Go unit tests (synthetic verdict):
+  scanner/internal/scanner/agents/kimi_hooks_output_test.go
+    TestKimiHandleHookOutput_PromptHardBlock_DeniesViaPermissionDecisionAndExit2
+    TestKimiHandleHookOutput_ToolHardDeny...Exit2
+    -> construct client.GenericEvaluateResponse{Action:"block"} and assert ExitError{Code:2} + reason-on-stderr.
+       No os/exec, no real kimi, no firewall.
