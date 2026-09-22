@@ -1,0 +1,23 @@
+# C8 boundary: unauth / bad-key vs valid-key contrast through Kong
+# route shape: POST /guard/evaluate/v1/<KEY>/kimi_cli/<ctx>  (captured live via tcpdump)
+# captured_at: 2026-09-16T22:50:28Z
+
+=== (a) BAD KEY (unauthenticated / invalid api-key) ===
+POST http://localhost:8080/guard/evaluate/v1/BADKEYdeadbeef00000000000000000000/kimi_cli/eJwszFGqwjAQRuG9_M8ptNPbXM2bG-ge2skEBpM0JEYEce8iCuftwPeEl7uyrFsSOGgZpvGTHSzBgKNKvl1K-f2rJh04KgyOBoeouT9g0KTqFteedqlwEKYwBrHT37-dg_XLHhY6hdEznWcihkFvUvMX5cNLxesdAAD__7C5Kt0
+HTTP_STATUS=401
+BODY:
+{"error": "Authentication required"}
+
+=== (b) VALID KEY (contrast) ===
+POST http://localhost:8080/guard/evaluate/v1/MCPGatewayDevKey2024xyzABCDEF1234/kimi_cli/eJwszFGqwjAQRuG9_M8ptNPbXM2bG-ge2skEBpM0JEYEce8iCuftwPeEl7uyrFsSOGgZpvGTHSzBgKNKvl1K-f2rJh04KgyOBoeouT9g0KTqFteedqlwEKYwBrHT37-dg_XLHhY6hdEznWcihkFvUvMX5cNLxesdAAD__7C5Kt0
+HTTP_STATUS=200
+BODY:
+{"action":"allow"}
+
+=== (c) NO KEY segment / malformed path ===
+HTTP_STATUS=404
+BODY:
+{
+  "message":"no Route matched with those values",
+  "request_id":"dc140928292d103123f7175c854ad316"
+}
