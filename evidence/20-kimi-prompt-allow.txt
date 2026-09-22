@@ -1,0 +1,30 @@
+# CAPTURE 1 — kimi prompt ALLOW (benign, no policy keyword)
+# real front door: onyx-scanner hooks --source=kimi_cli --type=prompt  (envelope on stdin)
+# captured_at: 2026-09-16T22:50:45Z
+# session_id: kimi-c7-allow-1789599044
+
+## ENVELOPE (stdin)
+{"session_id": "kimi-c7-allow-1789599044", "cwd": "/home/coder", "hook_event_name": "UserPromptSubmit", "prompt": "List the files in the current directory and summarize what this project does."}
+
+## ENVELOPE base64
+eyJzZXNzaW9uX2lkIjogImtpbWktYzctYWxsb3ctMTc4OTU5OTA0NCIsICJjd2QiOiAiL2hvbWUvY29kZXIiLCAiaG9va19ldmVudF9uYW1lIjogIlVzZXJQcm9tcHRTdWJtaXQiLCAicHJvbXB0IjogIkxpc3QgdGhlIGZpbGVzIGluIHRoZSBjdXJyZW50IGRpcmVjdG9yeSBhbmQgc3VtbWFyaXplIHdoYXQgdGhpcyBwcm9qZWN0IGRvZXMuIn0=
+
+## RESULT
+exit_code: 0
+stdout: ''
+stderr: ''
+
+## scanner.log hook_invocation line
+2026-09-16T22:50:44.723471184Z	INFO	hook_invocation	{"event": "hook_invocation", "platform": "linux", "caller": "scanner_hooks_cmd", "hook_source": "kimi_cli", "hook_type": "prompt", "session_id": "kimi-c7-allow-1789599044", "is_mcp_tool": false, "mcp_guard_hooks": false, "outcome": "guard_disabled", "sanction_action": "skipped", "evaluate_action": "allow", "fail_open_reason": "", "api_key_source": "file", "process_walk_outcome": "resolved", "process_walk_pid": 1716678, "hook_owner_outcome": "", "exit_code": 0, "elapsed_ms": 25, "sample_rate": 20}
+
+## scanner.log full new lines (evaluate request+response)
+2026-09-16T22:50:44.697849584Z	INFO	keychain_outcome	{"event": "keychain_outcome", "op": "get", "outcome": "file", "reason": "file", "caller": "scanner_hooks_cmd", "platform": "linux", "hook_source": "kimi_cli", "hook_type": "prompt"}
+2026-09-16T22:50:44.697917374Z	DEBUG	Resolved block-prompts=true for source=kimi_cli
+2026-09-16T22:50:44.69792244Z	DEBUG	Hooks command triggered, source=kimi_cli, hook-type=prompt
+2026-09-16T22:50:44.697959074Z	DEBUG	Received prompt (length=194)
+2026-09-16T22:50:44.697967733Z	DEBUG	Full hook input:
+"eyJzZXNzaW9uX2lkIjogImtpbWktYzctYWxsb3ctMTc4OTU5OTA0NCIsICJjd2QiOiAiL2hvbWUvY29kZXIiLCAiaG9va19ldmVudF9uYW1lIjogIlVzZXJQcm9tcHRTdWJtaXQiLCAicHJvbXB0IjogIkxpc3QgdGhlIGZpbGVzIGluIHRoZSBjdXJyZW50IGRpcmVjdG9yeSBhbmQgc3VtbWFyaXplIHdoYXQgdGhpcyBwcm9qZWN0IGRvZXMuIn0="
+2026-09-16T22:50:44.699025903Z	DEBUG	Sending evaluation request to: http://onyx-ai-firewall.onyxd.svc.cluster.local:8080
+2026-09-16T22:50:44.723430284Z	DEBUG	Evaluate response	{"action": "allow"}
+2026-09-16T22:50:44.723471184Z	INFO	hook_invocation	{"event": "hook_invocation", "platform": "linux", "caller": "scanner_hooks_cmd", "hook_source": "kimi_cli", "hook_type": "prompt", "session_id": "kimi-c7-allow-1789599044", "is_mcp_tool": false, "mcp_guard_hooks": false, "outcome": "guard_disabled", "sanction_action": "skipped", "evaluate_action": "allow", "fail_open_reason": "", "api_key_source": "file", "process_walk_outcome": "resolved", "process_walk_pid": 1716678, "hook_owner_outcome": "", "exit_code": 0, "elapsed_ms": 25, "sample_rate": 20}
+
