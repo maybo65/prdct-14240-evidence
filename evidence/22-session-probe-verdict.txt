@@ -1,0 +1,12 @@
+C9 icon-in-UI avenue — login-free session probe (no credential submit).
+captured_at=2026-09-17T16:43Z
+Method: launched the persistent SSO profile /tmp/onyx-sso-profile headless, navigated to
+        http://localhost:8181/ai-assets, waited, and STOPPED before any login form.
+Result: redirected to http://localhost:8181/account/login (body "Forgot password?") —
+        the persisted Frontegg session has EXPIRED. Screenshot: probe-session-dead-login.png.
+Disposition: capturing the kimi icon in the /ai-assets inventory UI requires a fresh SSO login,
+        which hits the shared coder-agent@onyx.security JumpCloud progressive lockout (bucket b,
+        cross-lane harm to re-hammer). NO credential was submitted — no lockout extended.
+        C9 (and the DENY-alert UI screenshot) remain bucket (b): externally-blocked by the shared
+        identity lockout. The icon mapping itself IS proven in code + test #11
+        (test_inventory_applications: endpoint_kimi-cli -> /applications/kimi.svg).
